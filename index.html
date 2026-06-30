@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>生活记录</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+    background: #fafaf9;
+    color: #292524;
+    line-height: 1.8;
+    min-height: 100vh;
+  }
+
+  /* ===== 导航栏 ===== */
+  .navbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(250, 250, 249, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid #e7e5e4;
+  }
+  .navbar-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 24px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .navbar-brand {
+    font-size: 18px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    color: #292524;
+    cursor: pointer;
+  }
+  .navbar-links a {
+    font-size: 14px;
+    color: #78716c;
+    text-decoration: none;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: color 0.2s;
+  }
+  .navbar-links a:hover { color: #292524; }
+
+  /* ===== 布局 ===== */
+  .page-wrapper {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    gap: 48px;
+    min-height: calc(100vh - 56px - 80px);
+  }
+
+  /* ===== 左侧栏 ===== */
+  .sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    padding-top: 48px;
+    position: sticky;
+    top: 80px;
+    align-self: flex-start;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+  }
+
+  .profile {
+    text-align: center;
+    padding-bottom: 32px;
+    border-bottom: 1px solid #e7e5e4;
+    margin-bottom: 28px;
+  }
+
+  .avatar-wrapper {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    overflow: hidden;
+  }
+  .avatar-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    background: #e7e5e4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    color: #a8a29e;
+  }
+
+  .profile-name {
+    font-size: 16px;
+    font-weight: 500;
+    color: #292524;
+  }
+  .profile-bio {
+    font-size: 13px;
+    color: #a8a29e;
+    margin-top: 4px;
+  }
+
+  .archive-title {
+    font-size: 13px;
+    color: #a8a29e;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+  }
+  .archive-list { list-style: none; }
+
+  .archive-item {
+    padding: 10px 0;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  .archive-item:hover { color: #292524; }
+  .archive-item .archive-date {
+    font-size: 12px;
+    color: #c4b5a5;
+    margin-bottom: 1px;
+  }
+  .archive-item .archive-item-title {
+    font-size: 14px;
+    color: #78716c;
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .archive-item.active .archive-item-title {
+    color: #292524;
+    font-weight: 500;
+  }
+  .archive-empty {
+    font-size: 13px;
+    color: #d6d3d1;
+  }
+
+  /* ===== 右侧主内容 ===== */
+  .main-content {
+    flex: 1;
+    min-width: 0;
+    padding-top: 48px;
+    padding-bottom: 120px;
+  }
+
+  .post-list { list-style: none; }
+  .post-item {
+    padding: 28px 0;
+    border-bottom: 1px solid #e7e5e4;
+    cursor: pointer;
+  }
+  .post-item:first-child { padding-top: 0; }
+  .post-item .post-date {
+    font-size: 13px;
+    color: #a8a29e;
+    margin-bottom: 4px;
+  }
+  .post-item .post-title {
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 6px;
+  }
+  .post-item .post-excerpt {
+    font-size: 14px;
+    color: #78716c;
+    line-height: 1.6;
+  }
+  .post-item .has-image {
+    display: inline-block;
+    margin-left: 6px;
+    font-size: 12px;
+    color: #c4b5a5;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 80px 0;
+    color: #a8a29e;
+    font-size: 16px;
+  }
+
+  /* ===== 文章详情 ===== */
+  .article-header { margin-bottom: 48px; }
+  .article-header .post-date {
+    font-size: 13px;
+    color: #a8a29e;
+    margin-bottom: 8px;
+  }
+  .article-header .post-title {
+    font-size: 28px;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+  .article-body {
+    font-size: 16px;
+    line-height: 2;
+    color: #44403c;
+    word-wrap: break-word;
+  }
+  .article-body p { margin-bottom: 1.2em; }
+  .article-body img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 24px auto;
+    border-radius: 2px;
+  }
+  .back-link {
+    display: inline-block;
+    margin-top: 60px;
+    font-size: 14px;
+    color: #a8a29e;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  .back-link:hover { color: #292524; }
+
+  /* ===== 页脚 ===== */
+  footer {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 24px 40px;
+    font-size: 12px;
+    color: #d6d3d1;
+    text-align: center;
+  }
+
+  /* ===== 响应式 ===== */
+  @media (max-width: 768px) {
+    .page-wrapper {
+      flex-direction: column;
+      gap: 0;
+    }
+    .sidebar {
+      width: 100%;
+      position: static;
+      max-height: none;
+      overflow-y: visible;
+      padding-top: 32px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid #e7e5e4;
+    }
+    .profile {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      text-align: left;
+      padding-bottom: 0;
+      border-bottom: none;
+      margin-bottom: 20px;
+    }
+    .avatar-wrapper {
+      width: 56px;
+      height: 56px;
+      margin: 0;
+      flex-shrink: 0;
+    }
+    .main-content { padding-top: 24px; padding-bottom: 80px; }
+    .article-header .post-title { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a class="navbar-brand" onclick="router.navigate('list')">记录</a>
+    <div class="navbar-links">
+      <a onclick="router.navigate('list')" id="nav-home">首页</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-wrapper">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="profile">
+      <div class="avatar-wrapper"><div id="avatar-display"></div></div>
+      <div class="profile-name" id="profile-name"></div>
+      <div class="profile-bio" id="profile-bio"></div>
+    </div>
+    <div class="archive-title">文章档案</div>
+    <ul class="archive-list" id="archive-list"></ul>
+  </aside>
+
+  <main class="main-content" id="app"></main>
+
+</div>
+
+<footer>静静记录，无需多言</footer>
+
+<script>
+// ==================== 用户信息 ====================
+const UserStore = {
+  key: 'my_blog_user',
+  get() {
+    try { return JSON.parse(localStorage.getItem(this.key)) || {}; }
+    catch { return {}; }
+  },
+  getAvatar() { return this.get().avatar || ''; },
+  getName() { return this.get().name || '未命名'; },
+  getBio() { return this.get().bio || '写一句简介…'; }
+};
+
+// ==================== 数据加载 ====================
+const IMG_MARKER = /\{\{img:([^}]+)\}\}/g;
+
+let postsData = [];
+
+async function loadPosts() {
+  try {
+    const res = await fetch('posts.json');
+    if (res.ok) {
+      postsData = await res.json();
+      return;
+    }
+  } catch(e) {
+    // fetch 失败（本地打开文件），回退到 localStorage
+  }
+  // 回退：尝试从 localStorage 读取
+  try {
+    postsData = JSON.parse(localStorage.getItem('my_blog_posts') || '[]');
+  } catch(e) {
+    postsData = [];
+  }
+}
+
+function getPostById(id) {
+  return postsData.find(p => p.id === id) || null;
+}
+
+function hasImages(content) {
+  return IMG_MARKER.test(content);
+}
+
+// ==================== 工具函数 ====================
+function formatDate(iso) {
+  const d = new Date(iso);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}年${m}月${day}日`;
+}
+
+function formatDateShort(iso) {
+  const d = new Date(iso);
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${m}/${day}`;
+}
+
+function getExcerpt(text, len = 60) {
+  const clean = text.replace(IMG_MARKER, '[图片]').replace(/\n/g, ' ').trim();
+  return clean.length > len ? clean.slice(0, len) + '…' : clean;
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function escapeAttr(str) {
+  return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function formatContent(text) {
+  let html = escapeHtml(text);
+  html = html.replace(/\{\{img:(data:image\/[^}]+)\}\}/g, function(match, src) {
+    return `<img src="${escapeAttr(decodeURIComponent(src))}" alt="图片" loading="lazy">`;
+  });
+  html = html.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>');
+  return '<p>' + html + '</p>';
+}
+
+// ==================== 侧栏渲染 ====================
+function renderSidebar() {
+  // 头像
+  const avatarContainer = document.getElementById('avatar-display');
+  const avatar = UserStore.getAvatar();
+  if (avatarContainer) {
+    avatarContainer.innerHTML = avatar
+      ? `<img src="${escapeAttr(avatar)}" alt="头像">`
+      : '<div class="avatar-placeholder">👤</div>';
+  }
+
+  // 昵称 & 简介
+  const nameEl = document.getElementById('profile-name');
+  const bioEl = document.getElementById('profile-bio');
+  if (nameEl) nameEl.textContent = UserStore.getName();
+  if (bioEl) bioEl.textContent = UserStore.getBio();
+
+  // 文章档案
+  const archiveList = document.getElementById('archive-list');
+  if (!archiveList) return;
+
+  if (postsData.length === 0) {
+    archiveList.innerHTML = '<li class="archive-empty">暂无文章</li>';
+    return;
+  }
+
+  archiveList.innerHTML = postsData.map(p => `
+    <li class="archive-item" data-id="${p.id}" onclick="router.navigate('post', '${p.id}')">
+      <div class="archive-date">${formatDateShort(p.createdAt)}</div>
+      <div class="archive-item-title">${escapeHtml(p.title || '无标题')}</div>
+    </li>
+  `).join('');
+}
+
+function setArchiveActive(id) {
+  document.querySelectorAll('.archive-item').forEach(el => el.classList.remove('active'));
+  if (id) {
+    const active = document.querySelector(`.archive-item[data-id="${id}"]`);
+    if (active) active.classList.add('active');
+  }
+}
+
+// ==================== 视图 ====================
+const views = {
+  list() {
+    if (postsData.length === 0) {
+      return `<div class="empty-state"><p>还没有文章</p></div>`;
+    }
+    const items = postsData.map(p => `
+      <li class="post-item" onclick="router.navigate('post', '${p.id}')">
+        <div class="post-date">${formatDate(p.createdAt)}</div>
+        <div class="post-title">${escapeHtml(p.title || '无标题')}${hasImages(p.content) ? '<span class="has-image">📷</span>' : ''}</div>
+        <div class="post-excerpt">${escapeHtml(getExcerpt(p.content))}</div>
+      </li>`).join('');
+    return `<ul class="post-list">${items}</ul>`;
+  },
+
+  post(id) {
+    const post = getPostById(id);
+    if (!post) {
+      return `<div class="empty-state"><p>文章不存在</p><p style="font-size:14px;color:#d6d3d1;"><a class="back-link" onclick="router.navigate('list')">← 返回</a></p></div>`;
+    }
+    return `
+      <article>
+        <div class="article-header">
+          <div class="post-date">${formatDate(post.createdAt)}</div>
+          <h1 class="post-title">${escapeHtml(post.title || '无标题')}</h1>
+        </div>
+        <div class="article-body">${formatContent(post.content)}</div>
+        <a class="back-link" onclick="router.navigate('list')">← 返回列表</a>
+      </article>`;
+  }
+};
+
+// ==================== 路由 ====================
+const router = {
+  navigate(view, param) {
+    const app = document.getElementById('app');
+    if (!app) return;
+
+    if (view === 'list') app.innerHTML = views.list();
+    else if (view === 'post') app.innerHTML = views.post(param);
+    else app.innerHTML = views.list();
+
+    window.scrollTo(0, 0);
+    if (view === 'post') setArchiveActive(param);
+    else setArchiveActive(null);
+  }
+};
+
+// ==================== 启动 ====================
+async function init() {
+  await loadPosts();
+  renderSidebar();
+  router.navigate('list');
+}
+
+init();
+</script>
+
+</body>
+</html>

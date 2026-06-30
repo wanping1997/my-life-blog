@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>博客管理 - 本地编辑</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+    background: #fafaf9;
+    color: #292524;
+    line-height: 1.8;
+    min-height: 100vh;
+  }
+
+  /* ===== 导航栏 ===== */
+  .navbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(250, 250, 249, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid #e7e5e4;
+  }
+  .navbar-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 24px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .navbar-brand {
+    font-size: 18px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    color: #292524;
+  }
+  .navbar-links { display: flex; gap: 20px; align-items: center; }
+  .navbar-links a {
+    font-size: 14px;
+    color: #78716c;
+    text-decoration: none;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: color 0.2s;
+  }
+  .navbar-links a:hover, .navbar-links a.active { color: #292524; }
+
+  /* ===== 布局 ===== */
+  .page-wrapper {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    gap: 48px;
+    min-height: calc(100vh - 56px);
+  }
+
+  /* ===== 左侧栏 ===== */
+  .sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    padding-top: 48px;
+    position: sticky;
+    top: 80px;
+    align-self: flex-start;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+  }
+
+  .sidebar-section {
+    padding-bottom: 24px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid #e7e5e4;
+  }
+  .sidebar-section:last-child { border-bottom: none; }
+
+  .section-title {
+    font-size: 13px;
+    color: #a8a29e;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+  }
+
+  /* 头像 */
+  .avatar-wrapper {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 12px;
+    cursor: pointer;
+    border-radius: 50%;
+    overflow: hidden;
+    transition: opacity 0.2s;
+  }
+  .avatar-wrapper:hover { opacity: 0.85; }
+  .avatar-wrapper:hover .avatar-overlay { opacity: 1; }
+  .avatar-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    background: #e7e5e4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    color: #a8a29e;
+  }
+  .avatar-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(41, 37, 36, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+    border-radius: 50%;
+    font-size: 12px;
+    color: #fff;
+    letter-spacing: 1px;
+  }
+
+  .profile-name {
+    font-size: 14px;
+    color: #292524;
+    font-weight: 500;
+    text-align: center;
+    cursor: pointer;
+    padding: 2px 8px;
+    display: inline-block;
+    width: 100%;
+  }
+  .profile-name:hover { background: #f5f5f4; border-radius: 2px; }
+
+  .profile-bio {
+    font-size: 12px;
+    color: #a8a29e;
+    text-align: center;
+    cursor: pointer;
+    padding: 2px 8px;
+    display: inline-block;
+    width: 100%;
+  }
+  .profile-bio:hover { background: #f5f5f4; border-radius: 2px; }
+
+  /* 文章列表 */
+  .post-nav-item {
+    padding: 8px 0;
+    cursor: pointer;
+    font-size: 13px;
+    color: #78716c;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .post-nav-item:hover { color: #292524; }
+  .post-nav-item.active { color: #292524; font-weight: 500; }
+  .post-nav-item .nav-date { font-size: 11px; color: #c4b5a5; margin-right: 8px; flex-shrink: 0; }
+  .post-nav-item .nav-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* 导出按钮 */
+  .btn-export {
+    display: block;
+    width: 100%;
+    padding: 10px 0;
+    margin-top: 16px;
+    background: #292524;
+    color: #fafaf9;
+    border: none;
+    font-family: inherit;
+    font-size: 14px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    border-radius: 2px;
+    transition: background 0.2s;
+  }
+  .btn-export:hover { background: #44403c; }
+
+  /* ===== 右侧主内容 ===== */
+  .main-content {
+    flex: 1;
+    min-width: 0;
+    padding-top: 48px;
+    padding-bottom: 120px;
+  }
+
+  /* 表单 */
+  .form-group { margin-bottom: 24px; }
+  .form-group label {
+    display: block;
+    font-size: 13px;
+    color: #a8a29e;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+  }
+  .form-group input[type="text"],
+  .form-group input[type="date"],
+  .form-group textarea {
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid #e7e5e4;
+    background: transparent;
+    font-family: inherit;
+    font-size: 16px;
+    color: #292524;
+    padding: 8px 0;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-group input:focus,
+  .form-group textarea:focus {
+    border-bottom-color: #a8a29e;
+  }
+  .form-group textarea {
+    min-height: 320px;
+    resize: vertical;
+    line-height: 1.8;
+  }
+
+  /* 工具栏 */
+  .editor-toolbar {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .toolbar-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-family: inherit;
+    color: #78716c;
+    background: #f5f5f4;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .toolbar-btn:hover { color: #292524; background: #e7e5e4; }
+
+  /* 图片预览 */
+  .image-previews {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .image-preview-item {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    border-radius: 2px;
+    overflow: hidden;
+    border: 1px solid #e7e5e4;
+  }
+  .image-preview-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .image-preview-item .remove-img {
+    position: absolute;
+    top: 2px; right: 2px;
+    width: 18px; height: 18px;
+    background: rgba(41, 37, 36, 0.7);
+    color: #fafaf9;
+    border: none;
+    border-radius: 50%;
+    font-size: 11px;
+    line-height: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .image-preview-item .remove-img:hover { background: rgba(185, 28, 28, 0.8); }
+
+  .form-actions {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    margin-top: 32px;
+  }
+  .btn-primary {
+    padding: 10px 24px;
+    background: #292524;
+    color: #fafaf9;
+    border: none;
+    font-family: inherit;
+    font-size: 14px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: background 0.2s;
+  }
+  .btn-primary:hover { background: #44403c; }
+  .btn-secondary {
+    padding: 10px 24px;
+    background: transparent;
+    color: #78716c;
+    border: 1px solid #e7e5e4;
+    font-family: inherit;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover { color: #292524; border-color: #a8a29e; }
+  .btn-cancel {
+    font-size: 14px;
+    color: #a8a29e;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .btn-cancel:hover { color: #292524; }
+  .btn-danger {
+    font-size: 14px;
+    color: #b91c1c;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    opacity: 0.6;
+  }
+  .btn-danger:hover { opacity: 1; }
+
+  /* 提示信息 */
+  .export-hint {
+    margin-top: 12px;
+    font-size: 12px;
+    color: #d6d3d1;
+    line-height: 1.6;
+  }
+
+  /* 响应式 */
+  @media (max-width: 768px) {
+    .page-wrapper { flex-direction: column; gap: 0; }
+    .sidebar {
+      width: 100%;
+      position: static;
+      max-height: none;
+      overflow-y: visible;
+      padding-top: 24px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid #e7e5e4;
+    }
+    .main-content { padding-top: 24px; padding-bottom: 80px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a class="navbar-brand">✎ 博客管理</a>
+    <div class="navbar-links">
+      <a onclick="router.navigate('new')" id="nav-new">写新文章</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-wrapper">
+
+  <!-- 左侧栏 -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-section" style="text-align:center">
+      <div class="avatar-wrapper" onclick="handleAvatarUpload()" title="点击更换头像">
+        <div id="avatar-display"></div>
+        <div class="avatar-overlay">更换</div>
+      </div>
+      <div class="profile-name" onclick="editProfileName()" title="点击编辑昵称" id="profile-name"></div>
+      <div class="profile-bio" onclick="editProfileBio()" title="点击编辑简介" id="profile-bio"></div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="section-title">所有文章</div>
+      <div id="post-nav-list"></div>
+    </div>
+
+    <button class="btn-export" onclick="handleExport()">⬇ 导出发布</button>
+    <div class="export-hint">
+      导出 posts.json 后，将它放到博客文件夹，然后用 Git 推送到 GitHub 即可更新公网内容。
+    </div>
+  </aside>
+
+  <!-- 右侧主编辑区 -->
+  <main class="main-content" id="app"></main>
+
+</div>
+
+<script>
+// ==================== 用户信息 ====================
+const UserStore = {
+  key: 'my_blog_user',
+  get() {
+    try { return JSON.parse(localStorage.getItem(this.key)) || {}; }
+    catch { return {}; }
+  },
+  set(data) {
+    const current = this.get();
+    const updated = { ...current, ...data };
+    localStorage.setItem(this.key, JSON.stringify(updated));
+  },
+  getAvatar() { return this.get().avatar || ''; },
+  getName() { return this.get().name || '未命名'; },
+  getBio() { return this.get().bio || '写一句简介…'; }
+};
+
+// ==================== 图片管理 ====================
+const IMG_MARKER = /\{\{img:([^}]+)\}\}/g;
+let pendingImages = [];
+
+function extractImages(content) {
+  const images = [];
+  let match;
+  const regex = new RegExp(IMG_MARKER.source, 'g');
+  while ((match = regex.exec(content)) !== null) {
+    images.push(match[1]);
+  }
+  return images;
+}
+
+// ==================== 数据层 (localStorage) ====================
+const Storage = {
+  key: 'my_blog_posts',
+  getAll() {
+    try { return JSON.parse(localStorage.getItem(this.key) || '[]'); }
+    catch { return []; }
+  },
+  save(posts) { localStorage.setItem(this.key, JSON.stringify(posts)); },
+  getById(id) { return this.getAll().find(p => p.id === id) || null; },
+  add(post) {
+    const posts = this.getAll();
+    posts.unshift(post);
+    this.save(posts);
+  },
+  update(id, data) {
+    const posts = this.getAll();
+    const idx = posts.findIndex(p => p.id === id);
+    if (idx === -1) return false;
+    posts[idx] = { ...posts[idx], ...data, updatedAt: new Date().toISOString() };
+    this.save(posts);
+    return true;
+  },
+  delete(id) {
+    const posts = this.getAll().filter(p => p.id !== id);
+    this.save(posts);
+  }
+};
+
+function genId() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
+
+function formatDateShort(iso) {
+  const d = new Date(iso);
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${m}/${day}`;
+}
+
+// ==================== 导出 ====================
+function handleExport() {
+  const posts = Storage.getAll();
+  // 清理：去掉内部字段，保留公开需要的数据
+  const publicPosts = posts.map(p => ({
+    id: p.id,
+    title: p.title,
+    content: p.content,
+    createdAt: p.createdAt,
+    updatedAt: p.updatedAt
+  }));
+
+  const json = JSON.stringify(publicPosts, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'posts.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  alert('posts.json 已下载！\n\n请将它放到博客文件夹中，替换旧的 posts.json。\n然后运行 git push 即可更新公网内容。');
+}
+
+// ==================== 头像和个人信息 ====================
+function handleAvatarUpload() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = function() {
+    const file = input.files[0];
+    if (!file) return;
+    if (file.size > 512 * 1024) { alert('头像请控制在 500KB 以内'); return; }
+    const reader = new FileReader();
+    reader.onload = function() {
+      UserStore.set({ avatar: reader.result });
+      renderSidebar();
+    };
+    reader.readAsDataURL(file);
+  };
+  input.click();
+}
+
+function editProfileName() {
+  const current = UserStore.getName();
+  const name = prompt('输入你的昵称：', current === '未命名' ? '' : current);
+  if (name !== null) {
+    UserStore.set({ name: name.trim() || '未命名' });
+    renderSidebar();
+  }
+}
+
+function editProfileBio() {
+  const current = UserStore.getBio();
+  const bio = prompt('写一句简介：', current === '写一句简介…' ? '' : current);
+  if (bio !== null) {
+    UserStore.set({ bio: bio.trim() || '写一句简介…' });
+    renderSidebar();
+  }
+}
+
+// ==================== 图片上传 ====================
+function handleImageUpload() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.multiple = true;
+  input.onchange = function() {
+    Array.from(input.files).forEach(file => {
+      if (file.size > 2 * 1024 * 1024) {
+        alert(`图片「${file.name}」超过 2MB，已跳过。`);
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function() {
+        pendingImages.push(reader.result);
+        insertImageMarker(reader.result);
+        renderImagePreviews();
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+  input.click();
+}
+
+function insertImageMarker(base64) {
+  const textarea = document.getElementById('post-content');
+  if (!textarea) return;
+  const marker = `{{img:${base64}}}`;
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+  const text = textarea.value;
+  textarea.value = text.slice(0, start) + marker + text.slice(end);
+  textarea.selectionStart = textarea.selectionEnd = start + marker.length;
+  textarea.focus();
+}
+
+function removePendingImage(index) {
+  const removed = pendingImages[index];
+  pendingImages.splice(index, 1);
+  const textarea = document.getElementById('post-content');
+  if (textarea && removed) {
+    textarea.value = textarea.value.replace(`{{img:${removed}}}`, '');
+  }
+  renderImagePreviews();
+}
+
+function renderImagePreviews() {
+  const container = document.getElementById('image-previews');
+  if (!container) return;
+  if (pendingImages.length === 0) { container.innerHTML = ''; return; }
+  container.innerHTML = pendingImages.map((img, i) => `
+    <div class="image-preview-item">
+      <img src="${escapeAttr(img)}" alt="图片 ${i + 1}">
+      <button class="remove-img" onclick="removePendingImage(${i})" title="移除">×</button>
+    </div>
+  `).join('');
+}
+
+// ==================== 侧栏 ====================
+function renderSidebar() {
+  // 头像
+  const avatarContainer = document.getElementById('avatar-display');
+  const avatar = UserStore.getAvatar();
+  if (avatarContainer) {
+    avatarContainer.innerHTML = avatar
+      ? `<img src="${escapeAttr(avatar)}" alt="头像">`
+      : '<div class="avatar-placeholder">👤</div>';
+  }
+
+  // 昵称 & 简介
+  const nameEl = document.getElementById('profile-name');
+  const bioEl = document.getElementById('profile-bio');
+  if (nameEl) nameEl.textContent = UserStore.getName();
+  if (bioEl) bioEl.textContent = UserStore.getBio();
+
+  // 文章导航
+  renderPostNav();
+}
+
+function renderPostNav() {
+  const container = document.getElementById('post-nav-list');
+  if (!container) return;
+  const posts = Storage.getAll();
+
+  if (posts.length === 0) {
+    container.innerHTML = '<div style="font-size:13px;color:#d6d3d1;">暂无文章</div>';
+    return;
+  }
+
+  container.innerHTML = posts.map(p => `
+    <div class="post-nav-item" data-id="${p.id}" onclick="router.navigate('edit', '${p.id}')">
+      <span class="nav-date">${formatDateShort(p.createdAt)}</span>
+      <span class="nav-title">${escapeHtml(p.title || '无标题')}</span>
+    </div>
+  `).join('');
+}
+
+function setNavActive(id) {
+  document.querySelectorAll('.post-nav-item').forEach(el => el.classList.remove('active'));
+  if (id) {
+    const active = document.querySelector(`.post-nav-item[data-id="${id}"]`);
+    if (active) active.classList.add('active');
+  }
+}
+
+// ==================== 视图 ====================
+const views = {
+  new() {
+    pendingImages = [];
+    setNavActive(null);
+    return `
+      <form onsubmit="handleCreate(event)">
+        <div class="form-group">
+          <label>日期</label>
+          <input type="date" id="post-date" value="${today()}">
+        </div>
+        <div class="form-group">
+          <label>标题</label>
+          <input type="text" id="post-title" placeholder="今天发生了什么…" autofocus>
+        </div>
+        <div class="form-group">
+          <label>内容</label>
+          <div class="editor-toolbar">
+            <button type="button" class="toolbar-btn" onclick="handleImageUpload()">
+              🖼 添加图片
+            </button>
+          </div>
+          <div class="image-previews" id="image-previews"></div>
+          <textarea id="post-content" placeholder="写下来就不会忘记…"></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn-primary">保存</button>
+          <button type="button" class="btn-cancel" onclick="router.navigate('new')">清空</button>
+        </div>
+      </form>`;
+  },
+
+  edit(id) {
+    const post = Storage.getById(id);
+    if (!post) {
+      return `<div style="text-align:center;padding:80px 0;color:#a8a29e;">
+        <p>文章不存在</p>
+        <p style="font-size:14px;color:#d6d3d1;cursor:pointer;margin-top:8px;" onclick="router.navigate('new')">写一篇新的</p>
+      </div>`;
+    }
+    pendingImages = extractImages(post.content);
+    setNavActive(id);
+
+    return `
+      <form onsubmit="handleUpdate(event, '${post.id}')">
+        <div class="form-group">
+          <label>日期</label>
+          <input type="date" id="post-date" value="${post.createdAt.slice(0,10)}">
+        </div>
+        <div class="form-group">
+          <label>标题</label>
+          <input type="text" id="post-title" value="${escapeAttr(post.title || '')}" autofocus>
+        </div>
+        <div class="form-group">
+          <label>内容</label>
+          <div class="editor-toolbar">
+            <button type="button" class="toolbar-btn" onclick="handleImageUpload()">
+              🖼 添加图片
+            </button>
+          </div>
+          <div class="image-previews" id="image-previews"></div>
+          <textarea id="post-content">${escapeHtml(post.content)}</textarea>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn-primary">更新</button>
+          <button type="button" class="btn-secondary" onclick="router.navigate('new')">写新的</button>
+          <button type="button" class="btn-danger" onclick="handleDelete('${post.id}')">删除</button>
+        </div>
+      </form>`;
+  }
+};
+
+// ==================== 路由 ====================
+const router = {
+  navigate(view, param) {
+    const app = document.getElementById('app');
+    if (!app) return;
+
+    if (view === 'new') app.innerHTML = views.new();
+    else if (view === 'edit') app.innerHTML = views.edit(param);
+    else app.innerHTML = views.new();
+
+    window.scrollTo(0, 0);
+
+    // 导航高亮
+    const navNew = document.getElementById('nav-new');
+    if (navNew) {
+      if (view === 'new') navNew.classList.add('active');
+      else navNew.classList.remove('active');
+    }
+
+    // 图片预览
+    if (view === 'edit' || view === 'new') {
+      renderImagePreviews();
+    }
+  }
+};
+
+// ==================== 操作 ====================
+function today() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function handleCreate(e) {
+  e.preventDefault();
+  const dateVal = document.getElementById('post-date').value;
+  const title = document.getElementById('post-title').value.trim();
+  const content = document.getElementById('post-content').value.trim();
+  if (!content) return;
+
+  const createdAt = dateVal
+    ? new Date(dateVal + 'T12:00:00+08:00').toISOString()
+    : new Date().toISOString();
+
+  const id = genId();
+  Storage.add({ id, title, content, createdAt, updatedAt: createdAt });
+  pendingImages = [];
+  renderSidebar();
+  router.navigate('edit', id);
+}
+
+function handleUpdate(e, id) {
+  e.preventDefault();
+  const dateVal = document.getElementById('post-date').value;
+  const title = document.getElementById('post-title').value.trim();
+  const content = document.getElementById('post-content').value.trim();
+  if (!content) return;
+
+  const createdAt = dateVal
+    ? new Date(dateVal + 'T12:00:00+08:00').toISOString()
+    : undefined;
+
+  Storage.update(id, { title, content, ...(createdAt && { createdAt }) });
+  pendingImages = [];
+  renderSidebar();
+  // 停留在当前页面
+}
+
+function handleDelete(id) {
+  if (!confirm('确定删除这篇记录吗？')) return;
+  Storage.delete(id);
+  renderSidebar();
+  router.navigate('new');
+}
+
+// ==================== 工具函数 ====================
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function escapeAttr(str) {
+  return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// ==================== 启动 ====================
+renderSidebar();
+router.navigate('new');
+</script>
+
+</body>
+</html>
