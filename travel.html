@@ -7,10 +7,20 @@
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
+  :root {
+    --bg: #111110;
+    --surface: #1a1a18;
+    --border: #2d2d2a;
+    --text: #e8e6e3;
+    --text-secondary: #8b8a86;
+    --text-muted: #5c5b58;
+    --accent: #a09080;
+  }
+
   body {
     font-family: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
-    background: #fafaf9;
-    color: #292524;
+    background: var(--bg);
+    color: var(--text);
     line-height: 1.8;
     min-height: 100vh;
   }
@@ -18,10 +28,10 @@
   /* ===== 导航栏 ===== */
   .navbar {
     position: sticky; top: 0; z-index: 100;
-    background: rgba(250,250,249,0.92);
+    background: rgba(17, 17, 16, 0.92);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid #e7e5e4;
+    border-bottom: 1px solid var(--border);
   }
   .navbar-inner {
     max-width: 960px; margin: 0 auto; padding: 0 24px;
@@ -29,189 +39,130 @@
   }
   .navbar-brand {
     font-size: 18px; font-weight: 500; letter-spacing: 2px;
-    color: #292524; text-decoration: none;
+    color: var(--text); text-decoration: none;
   }
   .navbar-links a {
-    font-size: 14px; color: #78716c; text-decoration: none;
+    font-size: 14px; color: var(--text-secondary); text-decoration: none;
     letter-spacing: 1px; transition: color 0.2s; margin-left: 28px;
   }
-  .navbar-links a:hover { color: #292524; }
-  .navbar-links a.active { color: #292524; font-weight: 500; }
+  .navbar-links a:hover { color: var(--text); }
+  .navbar-links a.active { color: var(--text); font-weight: 500; }
 
-  /* ===== 页面容器 ===== */
   .page {
     max-width: 960px; margin: 0 auto; padding: 48px 24px 120px;
     min-height: calc(100vh - 56px);
   }
 
-  /* ===== 页头 ===== */
-  .page-header {
-    text-align: center; margin-bottom: 56px;
-  }
-  .page-header h1 {
-    font-size: 28px; font-weight: 500; letter-spacing: 2px;
-    margin-bottom: 8px;
-  }
-  .page-header p {
-    font-size: 14px; color: #a8a29e;
-  }
+  .page-header { text-align: center; margin-bottom: 56px; }
+  .page-header h1 { font-size: 28px; font-weight: 500; letter-spacing: 2px; margin-bottom: 8px; }
+  .page-header p { font-size: 14px; color: var(--text-muted); }
 
-  /* ===== 卡片网格 ===== */
   .card-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 24px;
+    gap: 20px;
   }
 
   .plan-card {
-    background: #fff;
-    border-radius: 8px;
+    background: var(--surface);
+    border-radius: 6px;
     overflow: hidden;
     cursor: pointer;
-    border: 1px solid #e7e5e4;
-    transition: box-shadow 0.2s, transform 0.15s;
+    border: 1px solid var(--border);
+    transition: border-color 0.2s, transform 0.15s;
   }
   .plan-card:hover {
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    border-color: var(--text-muted);
     transform: translateY(-2px);
   }
-  .card-accent { height: 4px; }
+  .card-accent { height: 3px; }
   .card-body { padding: 24px 24px 20px; }
-  .card-body h3 {
-    font-size: 17px; font-weight: 500; margin-bottom: 4px;
-    letter-spacing: 1px;
-  }
-  .card-body .card-subtitle {
-    font-size: 13px; color: #a8a29e; margin-bottom: 12px;
-  }
+  .card-body h3 { font-size: 17px; font-weight: 500; margin-bottom: 4px; letter-spacing: 1px; }
+  .card-body .card-subtitle { font-size: 13px; color: var(--text-muted); margin-bottom: 12px; }
   .card-body .card-route {
-    font-size: 13px; color: #78716c; line-height: 1.6;
+    font-size: 13px; color: var(--text-secondary); line-height: 1.6;
     margin-bottom: 14px;
-    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-    overflow: hidden;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
   }
   .card-meta {
-    display: flex; gap: 16px; font-size: 12px; color: #a8a29e;
-    padding-top: 12px; border-top: 1px solid #f5f5f4; flex-wrap: wrap;
+    display: flex; gap: 16px; font-size: 12px; color: var(--text-muted);
+    padding-top: 12px; border-top: 1px solid var(--border); flex-wrap: wrap;
   }
   .card-meta span { white-space: nowrap; }
 
-  /* ===== 详情视图 ===== */
   .detail-back {
-    display: inline-block; font-size: 14px; color: #a8a29e;
-    cursor: pointer; margin-bottom: 32px; transition: color 0.2s;
-    text-decoration: none;
+    display: inline-block; font-size: 14px; color: var(--text-muted);
+    cursor: pointer; margin-bottom: 32px; transition: color 0.2s; text-decoration: none;
   }
-  .detail-back:hover { color: #292524; }
+  .detail-back:hover { color: var(--text); }
 
   .detail-header { margin-bottom: 40px; }
-  .detail-header .detail-accent {
-    width: 40px; height: 4px; border-radius: 2px; margin-bottom: 16px;
-  }
-  .detail-header h1 {
-    font-size: 26px; font-weight: 500; letter-spacing: 1px;
-    margin-bottom: 6px;
-  }
-  .detail-header .detail-subtitle {
-    font-size: 15px; color: #78716c;
-  }
+  .detail-header .detail-accent { width: 40px; height: 3px; border-radius: 2px; margin-bottom: 16px; }
+  .detail-header h1 { font-size: 26px; font-weight: 500; letter-spacing: 1px; margin-bottom: 6px; }
+  .detail-header .detail-subtitle { font-size: 15px; color: var(--text-secondary); }
 
   .detail-stats {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-    gap: 16px;
-    margin-bottom: 36px;
-    padding: 20px;
-    background: #fafaf9;
-    border-radius: 6px;
-    border: 1px solid #f0efed;
+    gap: 16px; margin-bottom: 36px; padding: 20px;
+    background: var(--surface); border-radius: 6px;
+    border: 1px solid var(--border);
   }
   .stat-item { text-align: center; }
-  .stat-value { font-size: 22px; font-weight: 500; color: #292524; }
-  .stat-label { font-size: 12px; color: #a8a29e; margin-top: 2px; }
+  .stat-value { font-size: 22px; font-weight: 500; color: var(--text); }
+  .stat-label { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
 
   .detail-route {
-    margin-bottom: 36px;
-    padding: 20px;
-    background: #fafaf9;
-    border-radius: 6px;
-    border: 1px solid #f0efed;
+    margin-bottom: 36px; padding: 20px;
+    background: var(--surface); border-radius: 6px;
+    border: 1px solid var(--border);
   }
-  .detail-route h3 {
-    font-size: 13px; color: #a8a29e; letter-spacing: 2px;
-    margin-bottom: 10px;
-  }
-  .detail-route p {
-    font-size: 14px; color: #44403c; line-height: 1.8;
-  }
+  .detail-route h3 { font-size: 13px; color: var(--text-muted); letter-spacing: 2px; margin-bottom: 10px; }
+  .detail-route p { font-size: 14px; color: #c4c0bb; line-height: 1.8; }
 
-  .detail-desc {
-    font-size: 15px; color: #44403c; line-height: 2;
-    margin-bottom: 36px;
-  }
+  .detail-desc { font-size: 15px; color: #c4c0bb; line-height: 2; margin-bottom: 36px; }
   .detail-desc p { margin-bottom: 1em; }
 
-  /* 详细行程表 */
   .itin-table {
     width: 100%; border-collapse: collapse;
-    font-size: 14px; line-height: 1.6;
-    margin-bottom: 36px;
+    font-size: 14px; line-height: 1.6; margin-bottom: 36px;
   }
-  .itin-table thead {
-    border-bottom: 2px solid #e7e5e4;
-  }
+  .itin-table thead { border-bottom: 2px solid var(--border); }
   .itin-table th {
     text-align: left; padding: 10px 8px;
-    font-size: 12px; color: #a8a29e;
-    letter-spacing: 2px; font-weight: 500;
+    font-size: 12px; color: var(--text-muted); letter-spacing: 2px; font-weight: 500;
   }
   .itin-table td {
     padding: 12px 8px; vertical-align: top;
-    border-bottom: 1px solid #f0efed;
-    color: #44403c;
+    border-bottom: 1px solid var(--border); color: #c4c0bb;
   }
-  .itin-table tr:hover td { background: #fafaf9; }
-  .itin-table .itin-day {
-    font-weight: 500; color: #292524; white-space: nowrap;
-    font-size: 13px;
-  }
-  .itin-table .itin-sub {
-    font-size: 12px; color: #a8a29e;
-  }
-  .itin-highlight td {
-    background: #fef9f0; border-left: 3px solid #e8913a;
-  }
-  .itin-highlight:hover td { background: #fef7eb; }
-  .itin-highlight .itin-day {
-    color: #c0392b;
-  }
+  .itin-table tr:hover td { background: var(--surface); }
+  .itin-table .itin-day { font-weight: 500; color: var(--text); white-space: nowrap; font-size: 13px; }
+  .itin-table .itin-sub { font-size: 12px; color: var(--text-muted); }
+  .itin-highlight td { background: #1f1a10; border-left: 3px solid #e8913a; }
+  .itin-highlight:hover td { background: #241d14; }
+  .itin-highlight .itin-day { color: #ff6b6b; }
 
-  .detail-actions {
-    display: flex; gap: 12px; flex-wrap: wrap;
-  }
+  .detail-actions { display: flex; gap: 12px; flex-wrap: wrap; }
   .btn {
     display: inline-flex; align-items: center; gap: 6px;
     padding: 10px 24px; border-radius: 6px; font-size: 14px;
     font-family: inherit; cursor: pointer; text-decoration: none;
     transition: all 0.2s; border: none;
   }
-  .btn-primary {
-    background: #292524; color: #fff;
-  }
-  .btn-primary:hover { background: #44403c; }
+  .btn-primary { background: var(--text); color: var(--bg); }
+  .btn-primary:hover { background: #c4c0bb; }
   .btn-outline {
-    background: transparent; color: #78716c;
-    border: 1px solid #d6d3d1;
+    background: transparent; color: var(--text-secondary);
+    border: 1px solid var(--border);
   }
-  .btn-outline:hover { border-color: #a8a29e; color: #292524; }
+  .btn-outline:hover { border-color: var(--text-muted); color: var(--text); }
 
-  .empty-state {
-    text-align: center; padding: 80px 0; color: #a8a29e; font-size: 15px;
-  }
+  .empty-state { text-align: center; padding: 80px 0; color: var(--text-muted); font-size: 15px; }
 
   footer {
     max-width: 960px; margin: 0 auto; padding: 0 24px 40px;
-    font-size: 12px; color: #d6d3d1; text-align: center;
+    font-size: 12px; color: var(--text-muted); text-align: center;
   }
 
   @media (max-width: 768px) {
