@@ -73,9 +73,9 @@ body { font-family: -apple-system, "Microsoft YaHei", sans-serif; background:#1a
   <div class="day"><span class="line" style="background:#7B68EE"></span> D3 夏河 → 郎木寺 → 扎尕那</div>
   <div class="day"><span class="line" style="background:#E8913A"></span> D4 扎尕那 → 若尔盖 → 阿坝</div>
   <div class="day"><span class="line" style="background:#E74C3C"></span> 🔴 D5 莲宝叶则（往返+各莫寺）</div>
-  <div class="day"><span class="line" style="background:#27AE60"></span> D6 阿坝 → 马尔康 → 理县 → 都江堰</div>
-  <div class="day"><span class="line" style="background:#2980B9"></span> D7 都江堰 → 青城山</div>
-  <div class="day"><span class="line" style="background:#F39C12"></span> D8 都江堰 → 成都</div>
+  <div class="day"><span class="line" style="background:#27AE60"></span> D6 阿坝 → 马尔康 → 理县</div>
+  <div class="day"><span class="line" style="background:#2980B9"></span> D7 理县 → 汶川 → 都江堰 → 青城山</div>
+  <div class="day"><span class="line" style="background:#F39C12"></span> D8 青城山 → 成都</div>
   <hr style="border-color:rgba(255,255,255,0.1); margin:8px 0;">
   <div class="day"><span class="dot" style="background:#fff; border:2px solid #4A90D9"></span> ● 住宿过夜</div>
   <div class="day"><span class="dot" style="background:#aaa"></span> ○ 途经/游览</div>
@@ -150,21 +150,16 @@ addRoute([
   [33.10,101.60], [32.95,101.72], [32.9020,101.7063]   // 回程经各莫寺
 ], C.d5, 4.5);
 
-// D6: 阿坝 → 马尔康 → 理县 → 汶川 → 都江堰
+// D6: 阿坝 → 马尔康 → 理县
 addRoute([
   [32.9020,101.7063], [32.40,101.90], [31.9058,102.2250],
-  [31.70,102.60], [31.4367,103.1667], [31.4763,103.5889],
-  [31.30,103.60], [30.9981,103.6231]
+  [31.70,102.60], [31.4367,103.1667]
 ], C.d6);
 
-// D6 alt: 阿坝 → 马尔康 → 理县 (备选落脚)
+// D7: 理县 → 汶川 → 都江堰 → 青城山
 addRoute([
-  [31.4367,103.1667], [31.40,103.30], [30.9981,103.6231]
-], C.d6, 2, '6 4');
-
-// D7: 都江堰 → 青城山
-addRoute([
-  [30.9981,103.6231], [30.95,103.60], [30.90,103.5667]
+  [31.4367,103.1667], [31.4763,103.5889],
+  [31.30,103.60], [30.9981,103.6231], [30.95,103.60], [30.90,103.5667]
 ], C.d7, 3.5);
 
 // D8: 青城山 → 成都
@@ -261,16 +256,16 @@ passthru(32.95, 101.72, '各莫寺',
 // D6: 阿坝 → 马尔康 → 理县 → 都江堰
 passthru(31.9058, 102.2250, '马尔康',
   '<b>🏘️ 马尔康</b><br>D6 午餐+休息<br>可选：卓克基土司官寨');
-alternate(31.4367, 103.1667, '理县',
-  '<b>◇ 理县（古尔沟）</b><br>D6 备选落脚点<br>真硫磺温泉 · 恢复疲劳');
+overnight(31.4367, 103.1667, '理县', 6,
+  '<b>🏠 理县</b> — D6 住宿<br>可选古尔沟温泉 · 恢复疲劳');
 passthru(31.4763, 103.5889, '汶川',
-  '<b>🏙️ 汶川</b><br>D6 途经<br>新城风貌');
-overnight(30.9981, 103.6231, '都江堰', 6,
-  '<b>🏠 都江堰</b> — D6+D7 住宿（两晚）<br>海拔 700m · 回到低海拔 ✅<br>南桥夜景 · 岷江蓝眼泪');
+  '<b>🏙️ 汶川</b><br>D7 途经<br>新城风貌');
+overnight(30.9981, 103.6231, '都江堰', 7,
+  '<b>🏠 都江堰</b> — D7 住宿<br>海拔 700m · 回到低海拔 ✅<br>南桥夜景 · 岷江蓝眼泪');
 
 // D7: 青城山
 passthru(30.90, 103.5667, '青城山',
-  '<b>🎋 青城山前山</b><br>D7 轻量漫游 3-4h<br>索道上→老君阁→下山<br>门票 ¥80 · 道教发源地');
+  '<b>🎋 青城山前山</b><br>D8 轻量漫游 3-4h<br>索道上→老君阁→下山<br>门票 ¥80 · 道教发源地');
 
 // D8: 成都
 overnight(30.5728, 104.0668, '成都', 8,
