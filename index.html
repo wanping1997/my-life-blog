@@ -558,11 +558,7 @@ function formatContent(text) {
   html = html.replace(/\{\{img:(data:image\/[^}]+)\}\}/g, function(match, src) {
     return `<img src="${escapeAttr(decodeURIComponent(src))}" alt="图片" loading="lazy" decoding="async">`;
   });
-  // 视频
-  html = html.replace(/\{\{video:([^}]+)\}\}/g, function(match, filename) {
-    const src = 'videos/' + escapeAttr(filename.trim());
-    return `<video src="${src}" controls preload="metadata" playsinline></video>`;
-  });
+  html = html.replace(/\{\{video:([^}]+)\}\}/g, '');
   html = html.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>');
   return '<p>' + html + '</p>';
 }
