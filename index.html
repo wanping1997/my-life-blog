@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>生活记录</title>
+<link rel="preload" href="avatar.jpg" as="image">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -559,7 +560,7 @@ function renderSidebar() {
   const avatar = profileData.avatar || '';
   if (avatarContainer) {
     avatarContainer.innerHTML = avatar
-      ? `<img src="${escapeAttr(avatar)}" alt="头像">`
+      ? `<img src="${escapeAttr(avatar)}" alt="头像" fetchpriority="high" loading="eager" decoding="sync">`
       : '<div class="avatar-placeholder">👤</div>';
   }
 
