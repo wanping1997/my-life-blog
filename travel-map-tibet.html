@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>拉萨+林芝+墨脱 9日自驾路线图</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: -apple-system, "Microsoft YaHei", sans-serif; background:#1a1a2e; }
+#map { height:100vh; width:100vw; }
+
+.legend { z-index:1002; 
+  position:fixed; bottom:30px; right:20px;
+  background:rgba(20,20,40,0.55); color:#ddd; padding:16px 20px;
+  border-radius:12px; font-size:14px; line-height:2;
+  border:1px solid rgba(255,255,255,0.12);
+  backdrop-filter:blur(8px); max-height:60vh; overflow-y:auto;
+}
+.legend h3 {
+      color:#fff; font-size:16px; margin-bottom:6px;
+      cursor:pointer; display:flex; align-items:center; justify-content:space-between;
+      user-select:none;
+    }
+    .legend h3 .toggle-icon { font-size:12px; transition:transform 0.3s; }
+    .legend.collapsed h3 .toggle-icon { transform:rotate(-90deg); }
+    .legend.collapsed .legend-body { display:none; }
+    .legend.collapsed { padding:8px 14px; }
+    @media (max-width:768px) {
+  .legend { max-height:none; }
+  .info-panel { bottom:20px; left:8px; font-size:11px; padding:6px 10px; }
+  .title-banner { font-size:11px; padding:4px 10px; top:8px; }
+}
+.legend .day { display:flex; align-items:center; gap:8px; }
+.legend .dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.legend .line { width:22px; height:2px; flex-shrink:0; border-radius:1px; }
+.legend .dash { width:22px; height:0; flex-shrink:0; border-top:2px dashed #888; }
+
+.title-banner {
+  position:fixed; top:16px; left:50%; transform:translateX(-50%); z-index:1000;
+  background:rgba(20,20,40,0.9); color:#fff; padding:10px 24px;
+  border-radius:20px; font-size:13px; font-weight:500;
+  pointer-events:auto; cursor:pointer; border:1px solid rgba(255,255,255,0.15);
+  backdrop-filter:blur(8px); letter-spacing:1px; user-select:none;
+  display:flex; align-items:center; gap:8px;
+}
+.title-banner.collapsed { font-size:18px; padding:8px 14px; }
+.title-banner.collapsed .tb-text { display:none; }
+
+.info-panel {
+  position:fixed; bottom:30px; left:16px; z-index:1000;
+  background:rgba(20,20,40,0.55); color:#bbb; padding:8px 14px;
+  border-radius:10px; font-size:11px; border:1px solid rgba(255,255,255,0.1);
+  cursor:pointer; user-select:none; line-height:1.8;
+  display:flex; flex-direction:column; gap:0;
+  backdrop-filter:blur(6px);
+}
+.info-panel.collapsed .ip-text { display:none; }
+.info-panel.collapsed { padding:6px 10px; }
+.info-panel span { color:#fff; font-weight:700; }
+</style>
+</head>
+<body>
+
+<div class="title-banner" onclick="this.classList.toggle('collapsed')"><span class="tb-text">拉萨+林芝+墨脱</span> 🏔️</div>
+
+<div id="map"></div>
+
+<div class="legend">
+  <h3 onclick="this.parentElement.classList.toggle('collapsed')">📋 图例 <span class="toggle-icon">▼</span></h3>
+        <div class="legend-body"><div class="day"><span class="dash"></span> ✈️ 飞行（武汉↔拉萨）</div>
+  <div class="day"><span class="line" style="background:#4A90D9"></span> D3 拉萨 → 羊卓雍措 → 拉萨</div>
+  <div class="day"><span class="line" style="background:#7B68EE"></span> D4 拉萨 → 巴松措 → 林芝</div>
+  <div class="day"><span class="line" style="background:#E8913A"></span> D5 林芝 → 鲁朗 → 波密</div>
+  <div class="day"><span class="line" style="background:#E74C3C"></span> 🟢 D6 波密 → 墨脱（华彩段）</div>
+  <div class="day"><span class="line" style="background:#27AE60"></span> D7 墨脱 → 林芝（返程）</div>
+  <div class="day"><span class="line" style="background:#F39C12"></span> D8 林芝 → 拉萨（返程）</div>
+  <hr style="border-color:rgba(255,255,255,0.1); margin:8px 0;">
+  <div class="day"><span class="dot" style="background:#fff; border:2px solid #4A90D9"></span> ● 住宿过夜</div>
+  <div class="day"><span class="dot" style="background:#aaa"></span> ○ 途经/游览</div>
+  <div class="day"><span class="dot" style="background:#E74C3C"></span> ★ 拉萨（圣城核心）</div>
+  <div class="day"><span class="dot" style="background:#ccc; border:1px dashed #999"></span> ◇ 垭口/隧道</div></div></div>
+
+<div class="info-panel" onclick="this.classList.toggle('collapsed')"><span class="ip-text">总驾驶 ≈ <span>1500 km</span><br>最高海拔 <span>5030 m</span><br>最低海拔 <span>1200 m</span><br>点击标记查看详情</span></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// ── Basemap ──────────────────────────────────────────────
+const map = L.map('map', { attributionControl:false }).setView([29.9, 93.5], 7);
+
+L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', { subdomains:'1234', maxZoom:18 }).addTo(map);
+
+// ── Color palette ────────────────────────────────────────
+const C = {
+  flight:   '#888888',
+  d3:       '#4A90D9',
+  d4:       '#7B68EE',
+  d5:       '#E8913A',
+  d6:       '#E74C3C',
+  d7:       '#27AE60',
+  d8:       '#F39C12',
+  overnight:'#ffffff',
+  passthru: '#aaaaaa',
+  highlight:'#E74C3C',
+  pass:     '#cccccc',
+};
+
+// ── Flight paths (dashed) ────────────────────────────────
+const flightStyle = { color:C.flight, weight:1.8, dashArray:'8 6', opacity:0.7 };
+
+// 武汉→拉萨
+L.polyline([[30.5928,114.3055],[30.20,110.00],[31.00,104.00],[31.50,98.00],[30.80,94.00],[29.6500,91.1000]], flightStyle).addTo(map);
+// 拉萨→武汉
+L.polyline([[29.6500,91.1000],[30.80,94.00],[31.50,98.00],[31.00,104.00],[30.20,110.00],[30.5928,114.3055]], flightStyle).addTo(map);
+
+// ── Driving route segments ───────────────────────────────
+function addRoute(coords, color, weight=3.5, dash=null) {
+  return L.polyline(coords, { color, weight, opacity:0.85, dashArray:dash, smoothFactor:1 }).addTo(map);
+}
+
+// D3: 拉萨 → 羊卓雍措 → 拉萨 (往返)
+addRoute([
+  [29.6500, 91.1000],  // 拉萨
+  [29.45, 91.05],
+  [29.25, 90.95],
+  [29.1000, 90.6500],  // 岗巴拉山口
+  [29.05, 90.55],
+  [28.9667, 90.4333],  // 羊卓雍措
+], C.d3, 3.5);
+addRoute([
+  [28.9667, 90.4333],
+  [29.05, 90.55],
+  [29.1000, 90.6500],
+  [29.25, 90.95],
+  [29.45, 91.05],
+  [29.6500, 91.1000],
+], C.d3, 2, '6 4'); // 返程虚线
+
+// D4: 拉萨 → 巴松措 → 林芝
+addRoute([
+  [29.6500, 91.1000],  // 拉萨
+  [29.72, 91.50],
+  [29.80, 92.00],
+  [29.78, 92.50],
+  [29.85, 93.00],
+  [30.0167, 93.9500],  // 巴松措
+  [29.95, 94.20],
+  [29.6500, 94.3667],  // 林芝
+], C.d4);
+
+// D5: 林芝 → 鲁朗 → 色季拉山口 → 波密
+addRoute([
+  [29.6500, 94.3667],  // 林芝
+  [29.72, 94.55],
+  [29.7833, 94.7333],  // 鲁朗
+  [29.68, 94.72],
+  [29.5833, 94.6667],  // 色季拉山口
+  [29.63, 94.85],
+  [29.72, 95.15],
+  [29.80, 95.45],
+  [29.8667, 95.7667],  // 波密
+], C.d5);
+
+// D6: 波密 → 嘎隆拉 → 墨脱（华彩段）
+addRoute([
+  [29.8667, 95.7667],  // 波密
+  [29.85, 95.70],
+  [29.8333, 95.6000],  // 嘎隆拉隧道
+  [29.78, 95.55],
+  [29.65, 95.50],
+  [29.50, 95.42],
+  [29.3167, 95.3167],  // 墨脱
+], C.d6, 4.5);
+
+// D7: 墨脱 → 波密 → 林芝 (返程)
+addRoute([
+  [29.3167, 95.3167],  // 墨脱
+  [29.50, 95.42],
+  [29.65, 95.50],
+  [29.78, 95.55],
+  [29.8333, 95.6000],  // 嘎隆拉隧道
+  [29.85, 95.70],
+  [29.8667, 95.7667],  // 波密
+  [29.80, 95.45],
+  [29.63, 94.85],
+  [29.5833, 94.6667],  // 色季拉山口
+  [29.72, 94.55],
+  [29.6500, 94.3667],  // 林芝
+], C.d7);
+
+// D8: 林芝 → 拉萨 (返程)
+addRoute([
+  [29.6500, 94.3667],  // 林芝
+  [29.78, 93.80],
+  [29.80, 93.00],
+  [29.72, 92.20],
+  [29.68, 91.60],
+  [29.6500, 91.1000],  // 拉萨
+], C.d8);
+
+// ── Marker helpers ───────────────────────────────────────
+function overnight(lat,lng, label, popup) {
+  const m = L.circleMarker([lat,lng], {
+    radius:9, fillColor:C.overnight, fillOpacity:1, color:C.d3, weight:2.5
+  }).addTo(map);
+  m.bindTooltip(`<b>${label}</b>`, {permanent:true, direction:'right', offset:[12,0],
+    className:'tl-overnight'});
+  if(popup) m.bindPopup(popup);
+  return m;
+}
+function passthru(lat,lng, label, popup) {
+  const m = L.circleMarker([lat,lng], {
+    radius:5.5, fillColor:C.passthru, fillOpacity:0.85, color:'#666', weight:1.5
+  }).addTo(map);
+  m.bindTooltip(label, {permanent:true, direction:'right', offset:[8,0],
+    className:'tl-passthru'});
+  if(popup) m.bindPopup(popup);
+  return m;
+}
+function highlight(lat,lng, label, popup) {
+  const m = L.circleMarker([lat,lng], {
+    radius:10, fillColor:C.highlight, fillOpacity:0.9, color:'#fff', weight:2.5
+  }).addTo(map);
+  m.bindTooltip(`<b>⭐ ${label}</b>`, {permanent:true, direction:'top', offset:[0,-14],
+    className:'tl-highlight'});
+  if(popup) m.bindPopup(popup);
+  return m;
+}
+function mountainPass(lat,lng, label, popup) {
+  const m = L.circleMarker([lat,lng], {
+    radius:6, fillColor:'transparent', fillOpacity:0, color:C.pass, weight:1.8, dashArray:'3 3'
+  }).addTo(map);
+  m.bindTooltip(`◇ ${label}`, {permanent:true, direction:'left', offset:[-8,0],
+    className:'tl-alt'});
+  if(popup) m.bindPopup(popup);
+  return m;
+}
+function flightPt(lat,lng, label, popup) {
+  const m = L.circleMarker([lat,lng], {
+    radius:5, fillColor:'#ddd', fillOpacity:0.7, color:'#888', weight:1.2, dashArray:'3 2'
+  }).addTo(map);
+  m.bindTooltip(`✈️ ${label}`, {permanent:true, direction:'right', offset:[8,0],
+    className:'tl-flight'});
+  if(popup) m.bindPopup(popup);
+  return m;
+}
+
+// ── Place markers ────────────────────────────────────────
+
+// 武汉 (flight endpoints)
+flightPt(30.5928, 114.3055, '武汉',
+  '<b>武汉</b><br>✈️ D1 出发 → 拉萨<br>✈️ D9 拉萨 → 返回');
+
+// 拉萨 (D1/D2/D8 overnight) — 全程核心！
+highlight(29.6500, 91.1000, '拉萨 — 圣城核心',
+  '<b>⭐ 拉萨 — 全程核心！</b><br>D1+D2+D8 住宿（共 3 晚）<br>海拔 3650m ⚠️<br>D1: 抵达+适应+酥油茶+八廓街<br>D2: 布达拉宫+大昭寺+药王山<br>D8: 色拉寺辩经+再游圣城<br>🛫 全程起点 & 终点');
+
+// D3: 拉萨 → 羊卓雍措 → 拉萨
+mountainPass(29.1000, 90.6500, '岗巴拉山口 5030m',
+  '<b>◇ 岗巴拉山口</b><br>海拔 5030m — 全程最高点<br>翻过山口羊湖跃然眼前');
+passthru(28.9667, 90.4333, '羊卓雍措',
+  '<b>💎 羊卓雍措</b><br>D3 一日往返<br>西藏三大圣湖之一 · 湖面 4441m<br>沿湖精华段游览 2-3h<br>门票 ¥60');
+
+// D4: 拉萨 → 巴松措 → 林芝
+passthru(30.0167, 93.9500, '巴松措',
+  '<b>🌲 巴松措</b><br>D4 游览 2-3h<br>西藏唯一 5A 自然景区<br>湖心岛+措宗寺 1500 年<br>门票 ¥120');
+overnight(29.6500, 94.3667, '林芝', 4,
+  '<b>🏠 林芝</b> — D4+D7 住宿（共 2 晚）<br>海拔 2900m · "西藏江南"<br>比拉萨低 700m，高反友好 ✅');
+
+// D5: 林芝 → 鲁朗 → 波密
+passthru(29.7833, 94.7333, '鲁朗',
+  '<b>🏘️ 鲁朗</b><br>D5 午餐：石锅鸡必吃！<br>东方瑞士 · 林海+草甸<br>远眺加拉白垒雪山');
+mountainPass(29.5833, 94.6667, '色季拉山口 4728m',
+  '<b>◇ 色季拉山口</b><br>海拔 4728m<br>远眺南迦巴瓦峰（7782m）<br>⚠️ 8月雨季极大概率不可见');
+overnight(29.8667, 95.7667, '波密', 5,
+  '<b>🏠 波密</b> — D5 住宿<br>海拔 2700m · 体感最舒适<br>雪山环绕 · 帕隆藏布穿城');
+
+// D6: 波密 → 墨脱（华彩段）
+mountainPass(29.8333, 95.6000, '嘎隆拉隧道 3700m',
+  '<b>◇ 嘎隆拉隧道</b><br>长 3.3km · 海拔 3700m<br>隧道这头冰川，那头雨林<br>夏季可见冰川末端冰舌');
+overnight(29.3167, 95.3167, '墨脱', 6,
+  '<b>🏠 墨脱</b> — D6 住宿<br>🟢 全程华彩段！<br>海拔 1200m · 热带雨林气候 ✅<br>雅鲁藏布江大拐弯 · 嘎隆拉冰川<br>门巴族村寨 · 高原茶园<br>中国最后一个通公路的县城<br>⚠️ 需边防证');
+
+// D7: 墨脱 → 林芝 (返程 - markers already placed above for 波密/色季拉山口)
+// 不需要重复 marker，返程路径经过已标记的点
+
+// ── Fit bounds ───────────────────────────────────────────
+const allMarkers = [];
+map.eachLayer(l => { if(l.getLatLng) allMarkers.push(l.getLatLng()); });
+const group = L.featureGroup(allMarkers.map(ll => L.marker(ll)));
+map.fitBounds(group.getBounds().pad(0.08));
+
+// ── Custom tooltip styles ────────────────────────────────
+const style = document.createElement('style');
+style.textContent = `
+  .tl-overnight {
+    background:rgba(20,20,40,0.9); color:#fff; border:1px solid #4A90D9;
+    border-radius:6px; padding:2px 8px; font-size:13px; white-space:nowrap;
+    box-shadow:0 2px 8px rgba(0,0,0,0.4);
+  }
+  .tl-passthru {
+    background:rgba(30,30,50,0.85); color:#ccc; border:1px solid #555;
+    border-radius:5px; padding:1px 7px; font-size:11px; white-space:nowrap;
+  }
+  .tl-highlight {
+    background:rgba(180,20,20,0.9); color:#fff; border:2px solid #ff6b6b;
+    border-radius:6px; padding:3px 10px; font-size:14px; white-space:nowrap;
+    box-shadow:0 2px 12px rgba(255,0,0,0.3);
+  }
+  .tl-alt {
+    background:rgba(30,30,50,0.8); color:#aaa; border:1px dashed #888;
+    border-radius:4px; padding:1px 6px; font-size:10px; white-space:nowrap;
+  }
+  .tl-flight {
+    background:rgba(30,30,50,0.8); color:#bbb; border:1px dashed #777;
+    border-radius:4px; padding:1px 6px; font-size:10px; white-space:nowrap;
+  }
+  .leaflet-popup-content { font-family:"Microsoft YaHei",sans-serif; font-size:13px; line-height:1.6; }
+  .leaflet-popup-content b { color:#333; }
+`;
+document.head.appendChild(style);
+</script>
+</body>
+</html>

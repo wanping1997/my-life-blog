@@ -114,12 +114,6 @@
     margin-top: 4px;
   }
 
-  .archive-title {
-    font-size: 13px;
-    color: #a8a29e;
-    letter-spacing: 2px;
-    margin-bottom: 16px;
-  }
   .archive-list { list-style: none; }
 
   .archive-item {
@@ -159,6 +153,42 @@
   }
 
   .post-list { list-style: none; }
+  .section-header {
+    font-size: 15px;
+    font-weight: 500;
+    color: #292524;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e7e5e4;
+  }
+  .sub-nav-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 20px;
+    border: 1px solid #e7e5e4;
+    border-radius: 4px;
+    text-decoration: none;
+    margin-bottom: 24px;
+    transition: all 0.2s;
+  }
+  .sub-nav-card:hover {
+    border-color: #c4b5a5;
+    background: #fafaf9;
+  }
+  .sub-nav-icon {
+    font-size: 20px;
+  }
+  .sub-nav-label {
+    font-size: 15px;
+    color: #292524;
+    font-weight: 500;
+    flex: 1;
+  }
+  .sub-nav-arrow {
+    font-size: 14px;
+    color: #c4b5a5;
+  }
   .post-item {
     padding: 28px 0;
     border-bottom: 1px solid #e7e5e4;
@@ -194,6 +224,41 @@
     font-size: 16px;
   }
 
+  /* ===== 入口卡片 ===== */
+  .portal-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  .portal-card {
+    display: block;
+    padding: 40px 36px;
+    border: 1px solid #e7e5e4;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s;
+  }
+  .portal-card:hover {
+    border-color: #c4b5a5;
+    background: #fafaf9;
+  }
+  .portal-card .card-icon {
+    font-size: 28px;
+    margin-bottom: 12px;
+  }
+  .portal-card .card-label {
+    font-size: 20px;
+    font-weight: 500;
+    color: #292524;
+    margin-bottom: 4px;
+  }
+  .portal-card .card-desc {
+    font-size: 14px;
+    color: #a8a29e;
+    line-height: 1.6;
+  }
+
   /* ===== 文章详情 ===== */
   .article-header { margin-bottom: 48px; }
   .article-header .post-date {
@@ -215,10 +280,91 @@
   .article-body p { margin-bottom: 1.2em; }
   .article-body img {
     display: block;
-    max-width: 100%;
+    max-width: 50%;
     height: auto;
     margin: 24px auto;
     border-radius: 2px;
+    cursor: zoom-in;
+    transition: opacity 0.4s ease;
+  }
+  .article-body img:hover {
+    opacity: 0.85;
+  }
+
+  /* ===== 图片灯箱 ===== */
+  .lightbox-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.92);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+  }
+  .lightbox-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+  .lightbox-img {
+    max-width: 90vw;
+    max-height: 90vh;
+    object-fit: contain;
+    border-radius: 2px;
+    box-shadow: 0 4px 40px rgba(0,0,0,0.5);
+    transition: opacity 0.2s ease;
+  }
+  .lightbox-close {
+    position: fixed;
+    top: 20px;
+    right: 28px;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 32px;
+    cursor: pointer;
+    z-index: 10001;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+    line-height: 1;
+    padding: 8px;
+  }
+  .lightbox-close:hover { opacity: 1; }
+  .lightbox-nav {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 48px;
+    cursor: pointer;
+    z-index: 10001;
+    opacity: 0.4;
+    transition: opacity 0.2s;
+    padding: 16px 12px;
+    line-height: 1;
+  }
+  .lightbox-nav:hover { opacity: 0.9; }
+  .lightbox-prev { left: 8px; }
+  .lightbox-next { right: 8px; }
+
+  @media (max-width: 768px) {
+    .article-body img { max-width: 80%; }
+    .lightbox-nav { font-size: 36px; padding: 12px 8px; }
+    .lightbox-close { font-size: 26px; top: 12px; right: 16px; }
+    .lightbox-img { max-width: 95vw; max-height: 85vh; }
+  }
+  .article-body video {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    max-height: 70vh;
+    margin: 24px auto;
+    border-radius: 2px;
+    background: #1c1917;
   }
   .back-link {
     display: inline-block;
@@ -272,6 +418,17 @@
     }
     .main-content { padding-top: 24px; padding-bottom: 80px; }
     .article-header .post-title { font-size: 22px; }
+    .article-body img { max-width: 80%; }
+    .archive-list { display: none; }
+    .portal-cards {
+      flex-direction: row;
+      gap: 16px;
+    }
+    .portal-card {
+      flex: 1;
+      padding: 28px 20px;
+    }
+    .portal-card .card-label { font-size: 17px; }
   }
 </style>
 </head>
@@ -279,9 +436,8 @@
 
 <nav class="navbar">
   <div class="navbar-inner">
-    <a class="navbar-brand" onclick="router.navigate('list')">记录</a>
+    <a class="navbar-brand" onclick="router.navigate('portal')">记录</a>
     <div class="navbar-links">
-      <a onclick="router.navigate('list')" id="nav-home">首页</a>
     </div>
   </div>
 </nav>
@@ -294,7 +450,6 @@
       <div class="profile-name" id="profile-name"></div>
       <div class="profile-bio" id="profile-bio"></div>
     </div>
-    <div class="archive-title">文章档案</div>
     <ul class="archive-list" id="archive-list"></ul>
   </aside>
 
@@ -305,38 +460,46 @@
 <footer>静静记录，无需多言</footer>
 
 <script>
-// ==================== 用户信息 ====================
-const UserStore = {
-  key: 'my_blog_user',
-  get() {
-    try { return JSON.parse(localStorage.getItem(this.key)) || {}; }
-    catch { return {}; }
-  },
-  getAvatar() { return this.get().avatar || ''; },
-  getName() { return this.get().name || '未命名'; },
-  getBio() { return this.get().bio || '写一句简介…'; }
-};
-
 // ==================== 数据加载 ====================
 const IMG_MARKER = /\{\{img:([^}]+)\}\}/g;
 
 let postsData = [];
+let profileData = { name: '未命名', bio: '写一句简介…', avatar: '' };
+
+async function loadJSON(file) {
+  try {
+    const res = await fetch(file);
+    if (res.ok) return await res.json();
+  } catch(e) { /* 本地打开文件会失败 */ }
+  return null;
+}
 
 async function loadPosts() {
-  try {
-    const res = await fetch('posts.json');
-    if (res.ok) {
-      postsData = await res.json();
-      return;
+  const data = await loadJSON('posts.json');
+  if (data) {
+    postsData = data;
+  } else {
+    // 回退到 localStorage
+    try {
+      postsData = JSON.parse(localStorage.getItem('my_blog_posts') || '[]').map(p => ({ category: 'life', ...p }));
+    } catch(e) {
+      postsData = [];
     }
-  } catch(e) {
-    // fetch 失败（本地打开文件），回退到 localStorage
   }
-  // 回退：尝试从 localStorage 读取
-  try {
-    postsData = JSON.parse(localStorage.getItem('my_blog_posts') || '[]');
-  } catch(e) {
-    postsData = [];
+}
+
+async function loadProfile() {
+  const data = await loadJSON('profile.json');
+  if (data) {
+    profileData = data;
+  } else {
+    // 回退到 localStorage
+    try {
+      const local = JSON.parse(localStorage.getItem('my_blog_user') || '{}');
+      profileData.name = local.name || '未命名';
+      profileData.bio = local.bio || '写一句简介…';
+      profileData.avatar = local.avatar || '';
+    } catch(e) {}
   }
 }
 
@@ -364,8 +527,11 @@ function formatDateShort(iso) {
   return `${m}/${day}`;
 }
 
+const IMG_FILE_MARKER = /\{\{img-file:([^}]+)\}\}/g;
+const VIDEO_MARKER = /\{\{video:([^}]+)\}\}/g;
+
 function getExcerpt(text, len = 60) {
-  const clean = text.replace(IMG_MARKER, '[图片]').replace(/\n/g, ' ').trim();
+  const clean = text.replace(IMG_MARKER, '[图片]').replace(IMG_FILE_MARKER, '[图片]').replace(VIDEO_MARKER, '[视频]').replace(/\n/g, ' ').trim();
   return clean.length > len ? clean.slice(0, len) + '…' : clean;
 }
 
@@ -381,8 +547,21 @@ function escapeAttr(str) {
 
 function formatContent(text) {
   let html = escapeHtml(text);
+  // 图片 - 新格式：文件上传 {{img-file:filename.jpg}}
+  html = html.replace(/\{\{img-file:([^}]+)\}\}/g, function(match, filename) {
+    const name = filename.trim();
+    const jpgSrc = 'images/' + escapeAttr(name);
+    const webpSrc = 'images/' + escapeAttr(name.replace(/\.(jpg|jpeg|png)$/i, '.webp'));
+    return `<picture><source srcset="${webpSrc}" type="image/webp"><img src="${jpgSrc}" alt="图片" loading="lazy" decoding="async"></picture>`;
+  });
+  // 图片 - 旧格式：base64 {{img:data:image/...}}
   html = html.replace(/\{\{img:(data:image\/[^}]+)\}\}/g, function(match, src) {
-    return `<img src="${escapeAttr(decodeURIComponent(src))}" alt="图片" loading="lazy">`;
+    return `<img src="${escapeAttr(decodeURIComponent(src))}" alt="图片" loading="lazy" decoding="async">`;
+  });
+  // 视频
+  html = html.replace(/\{\{video:([^}]+)\}\}/g, function(match, filename) {
+    const src = 'videos/' + escapeAttr(filename.trim());
+    return `<video src="${src}" controls preload="metadata" playsinline></video>`;
   });
   html = html.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>');
   return '<p>' + html + '</p>';
@@ -392,7 +571,7 @@ function formatContent(text) {
 function renderSidebar() {
   // 头像
   const avatarContainer = document.getElementById('avatar-display');
-  const avatar = UserStore.getAvatar();
+  const avatar = profileData.avatar || '';
   if (avatarContainer) {
     avatarContainer.innerHTML = avatar
       ? `<img src="${escapeAttr(avatar)}" alt="头像">`
@@ -402,8 +581,8 @@ function renderSidebar() {
   // 昵称 & 简介
   const nameEl = document.getElementById('profile-name');
   const bioEl = document.getElementById('profile-bio');
-  if (nameEl) nameEl.textContent = UserStore.getName();
-  if (bioEl) bioEl.textContent = UserStore.getBio();
+  if (nameEl) nameEl.textContent = profileData.name || '未命名';
+  if (bioEl) bioEl.textContent = profileData.bio || '写一句简介…';
 
   // 文章档案
   const archiveList = document.getElementById('archive-list');
@@ -432,19 +611,67 @@ function setArchiveActive(id) {
 
 // ==================== 视图 ====================
 const views = {
-  list() {
-    if (postsData.length === 0) {
-      return `<div class="empty-state"><p>还没有文章</p></div>`;
+  // 首页入口
+  portal() {
+    const lifeCount = postsData.filter(p => p.category === 'life').length;
+    const travelCount = postsData.filter(p => p.category === 'travel').length;
+    const readingCount = postsData.filter(p => p.category === 'reading').length;
+    const thoughtCount = postsData.filter(p => p.category === 'thought').length;
+    return `
+      <div class="portal-cards">
+        <div class="portal-card" onclick="router.navigate('list', 'life')">
+          <div class="card-icon">📝</div>
+          <div class="card-label">生活</div>
+          <div class="card-desc">记录日常点滴${lifeCount > 0 ? '，共 ' + lifeCount + ' 篇' : ''}</div>
+        </div>
+        <div class="portal-card" onclick="router.navigate('list', 'travel')">
+          <div class="card-icon">🗺️</div>
+          <div class="card-label">旅行</div>
+          <div class="card-desc">旅途见闻与计划${travelCount > 0 ? '，共 ' + travelCount + ' 篇' : ''}</div>
+        </div>
+        <div class="portal-card" onclick="router.navigate('list', 'reading')">
+          <div class="card-icon">📖</div>
+          <div class="card-label">阅读</div>
+          <div class="card-desc">读过的书与笔记${readingCount > 0 ? '，共 ' + readingCount + ' 篇' : ''}</div>
+        </div>
+        <div class="portal-card" onclick="router.navigate('list', 'thought')">
+          <div class="card-icon">💭</div>
+          <div class="card-label">随想</div>
+          <div class="card-desc">一闪而过的念头${thoughtCount > 0 ? '，共 ' + thoughtCount + ' 篇' : ''}</div>
+        </div>
+      </div>`;
+  },
+
+  // 文章列表（可按分类过滤）
+  list(category) {
+    const filtered = category
+      ? postsData.filter(p => p.category === category)
+      : postsData;
+    const label = category === 'travel' ? '旅行' : category === 'thought' ? '随想' : category === 'reading' ? '阅读' : '生活';
+
+    // 旅行板块的子导航：旅行计划
+    const subNav = category === 'travel'
+      ? `<a class="sub-nav-card" href="travel.html">
+           <span class="sub-nav-icon">📋</span>
+           <span class="sub-nav-label">旅行计划</span>
+           <span class="sub-nav-arrow">→</span>
+         </a>`
+      : '';
+
+    if (filtered.length === 0) {
+      const emptyMsg = category === 'travel' ? '还没有旅行记录' : category === 'thought' ? '还没有随想' : category === 'reading' ? '还没有阅读记录' : '还没有生活记录';
+      return `${subNav}<div class="empty-state"><p>${emptyMsg}</p><p style="font-size:14px;color:#d6d3d1;margin-top:8px;"><a class="back-link" onclick="router.navigate('portal')">← 返回</a></p></div>`;
     }
-    const items = postsData.map(p => `
+    const items = filtered.map(p => `
       <li class="post-item" onclick="router.navigate('post', '${p.id}')">
         <div class="post-date">${formatDate(p.createdAt)}</div>
         <div class="post-title">${escapeHtml(p.title || '无标题')}${hasImages(p.content) ? '<span class="has-image">📷</span>' : ''}</div>
         <div class="post-excerpt">${escapeHtml(getExcerpt(p.content))}</div>
       </li>`).join('');
-    return `<ul class="post-list">${items}</ul>`;
+    return `${subNav}<div class="section-header">${label}</div><ul class="post-list">${items}</ul><a class="back-link" onclick="router.navigate('portal')">← 返回首页</a>`;
   },
 
+  // 文章详情
   post(id) {
     const post = getPostById(id);
     if (!post) {
@@ -457,7 +684,7 @@ const views = {
           <h1 class="post-title">${escapeHtml(post.title || '无标题')}</h1>
         </div>
         <div class="article-body">${formatContent(post.content)}</div>
-        <a class="back-link" onclick="router.navigate('list')">← 返回列表</a>
+        <a class="back-link" onclick="router.navigate('list', '${post.category || 'life'}')">← 返回列表</a>
       </article>`;
   }
 };
@@ -468,9 +695,10 @@ const router = {
     const app = document.getElementById('app');
     if (!app) return;
 
-    if (view === 'list') app.innerHTML = views.list();
+    if (view === 'portal') app.innerHTML = views.portal();
+    else if (view === 'list') app.innerHTML = views.list(param);
     else if (view === 'post') app.innerHTML = views.post(param);
-    else app.innerHTML = views.list();
+    else app.innerHTML = views.portal();
 
     window.scrollTo(0, 0);
     if (view === 'post') setArchiveActive(param);
@@ -478,11 +706,99 @@ const router = {
   }
 };
 
+// ==================== 图片灯箱 ====================
+let lightboxImages = [];
+let lightboxIndex = 0;
+let lightboxOverlay = null;
+
+function ensureLightbox() {
+  if (lightboxOverlay) return;
+  lightboxOverlay = document.createElement('div');
+  lightboxOverlay.id = 'lightbox-overlay';
+  lightboxOverlay.className = 'lightbox-overlay';
+  lightboxOverlay.innerHTML = `
+    <button class="lightbox-close" title="关闭">✕</button>
+    <button class="lightbox-nav lightbox-prev" title="上一张">‹</button>
+    <img class="lightbox-img" src="" alt="">
+    <button class="lightbox-nav lightbox-next" title="下一张">›</button>
+  `;
+
+  // 点击背景或关闭按钮 → 关闭
+  lightboxOverlay.addEventListener('click', function(e) {
+    if (e.target === lightboxOverlay || e.target.classList.contains('lightbox-close')) {
+      closeLightbox();
+    }
+  });
+
+  // 左右导航按钮
+  lightboxOverlay.querySelector('.lightbox-prev').addEventListener('click', function(e) {
+    e.stopPropagation();
+    navigateLightbox(-1);
+  });
+  lightboxOverlay.querySelector('.lightbox-next').addEventListener('click', function(e) {
+    e.stopPropagation();
+    navigateLightbox(1);
+  });
+
+  document.body.appendChild(lightboxOverlay);
+}
+
+function openLightbox(images, index) {
+  ensureLightbox();
+  lightboxImages = images;
+  lightboxIndex = index;
+  showLightboxImage();
+  lightboxOverlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+  lightboxOverlay.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function showLightboxImage() {
+  const img = lightboxOverlay.querySelector('.lightbox-img');
+  img.style.opacity = '0';
+  setTimeout(() => {
+    img.src = lightboxImages[lightboxIndex];
+    img.style.opacity = '1';
+  }, 100);
+  // 多图时显示导航箭头，单图隐藏
+  const showNav = lightboxImages.length > 1 ? '' : 'none';
+  lightboxOverlay.querySelector('.lightbox-prev').style.display = showNav;
+  lightboxOverlay.querySelector('.lightbox-next').style.display = showNav;
+}
+
+function navigateLightbox(dir) {
+  lightboxIndex = (lightboxIndex + dir + lightboxImages.length) % lightboxImages.length;
+  showLightboxImage();
+}
+
+// 事件委托：点击文章中的图片 → 打开灯箱
+document.getElementById('app').addEventListener('click', function(e) {
+  const img = e.target.closest('.article-body img');
+  if (!img) return;
+  e.preventDefault();
+  const allImages = Array.from(document.querySelectorAll('.article-body img'));
+  const index = allImages.indexOf(img);
+  const srcs = allImages.map(function(i) { return i.src; });
+  openLightbox(srcs, index);
+});
+
+// 键盘控制
+document.addEventListener('keydown', function(e) {
+  if (!lightboxOverlay || !lightboxOverlay.classList.contains('active')) return;
+  if (e.key === 'Escape') { e.preventDefault(); closeLightbox(); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); navigateLightbox(-1); }
+  if (e.key === 'ArrowRight') { e.preventDefault(); navigateLightbox(1); }
+});
+
 // ==================== 启动 ====================
 async function init() {
-  await loadPosts();
+  await Promise.all([loadPosts(), loadProfile()]);
   renderSidebar();
-  router.navigate('list');
+  router.navigate('portal');
 }
 
 init();

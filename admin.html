@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>博客管理 - 本地编辑</title>
+<title>博客管理</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -14,42 +14,6 @@
     line-height: 1.8;
     min-height: 100vh;
   }
-
-  /* ===== 导航栏 ===== */
-  .navbar {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background: rgba(250, 250, 249, 0.92);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid #e7e5e4;
-  }
-  .navbar-inner {
-    max-width: 960px;
-    margin: 0 auto;
-    padding: 0 24px;
-    height: 56px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .navbar-brand {
-    font-size: 18px;
-    font-weight: 500;
-    letter-spacing: 2px;
-    color: #292524;
-  }
-  .navbar-links { display: flex; gap: 20px; align-items: center; }
-  .navbar-links a {
-    font-size: 14px;
-    color: #78716c;
-    text-decoration: none;
-    cursor: pointer;
-    letter-spacing: 1px;
-    transition: color 0.2s;
-  }
-  .navbar-links a:hover, .navbar-links a.active { color: #292524; }
 
   /* ===== 布局 ===== */
   .page-wrapper {
@@ -170,6 +134,7 @@
   .post-nav-item.active { color: #292524; font-weight: 500; }
   .post-nav-item .nav-date { font-size: 11px; color: #c4b5a5; margin-right: 8px; flex-shrink: 0; }
   .post-nav-item .nav-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .post-nav-item .nav-cat { margin-left: 4px; font-size: 11px; }
 
   /* 导出按钮 */
   .btn-export {
@@ -205,6 +170,33 @@
     color: #a8a29e;
     margin-bottom: 8px;
     letter-spacing: 1px;
+  }
+  .category-selector {
+    display: flex;
+    gap: 16px;
+  }
+  .category-option {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    padding: 8px 16px;
+    border: 1px solid #e7e5e4;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #78716c;
+    transition: all 0.2s;
+  }
+  .category-option:hover {
+    border-color: #c4b5a5;
+  }
+  .category-option:has(input:checked) {
+    border-color: #292524;
+    color: #292524;
+    background: #fafaf9;
+  }
+  .category-option input[type="radio"] {
+    display: none;
   }
   .form-group input[type="text"],
   .form-group input[type="date"],
@@ -365,15 +357,6 @@
 </head>
 <body>
 
-<nav class="navbar">
-  <div class="navbar-inner">
-    <a class="navbar-brand">✎ 博客管理</a>
-    <div class="navbar-links">
-      <a onclick="router.navigate('new')" id="nav-new">写新文章</a>
-    </div>
-  </div>
-</nav>
-
 <div class="page-wrapper">
 
   <!-- 左侧栏 -->
@@ -388,13 +371,13 @@
     </div>
 
     <div class="sidebar-section">
-      <div class="section-title">所有文章</div>
+      <div class="section-title">所有文章 <a onclick="router.navigate('new')" style="font-size:12px;color:#a8a29e;cursor:pointer;float:right;letter-spacing:0;">+ 新建</a></div>
       <div id="post-nav-list"></div>
     </div>
 
-    <button class="btn-export" onclick="handleExport()">⬇ 导出发布</button>
-    <div class="export-hint">
-      导出 posts.json 后，将它放到博客文件夹，然后用 Git 推送到 GitHub 即可更新公网内容。
+    <button class="btn-export" onclick="handlePublish()">⬆ 发布</button>
+    <div class="export-hint" id="publish-status">
+      编辑文章和个人信息后，点「发布」直接更新公网。
     </div>
   </aside>
 
@@ -423,14 +406,21 @@ const UserStore = {
 
 // ==================== 图片管理 ====================
 const IMG_MARKER = /\{\{img:([^}]+)\}\}/g;
-let pendingImages = [];
+const IMG_FILE_MARKER = /\{\{img-file:([^}]+)\}\}/g;
+let pendingImages = []; // 文件名列表（新格式）或 base64 数据（旧格式）
 
 function extractImages(content) {
   const images = [];
+  // 新格式 {{img-file:filename.jpg}}
   let match;
-  const regex = new RegExp(IMG_MARKER.source, 'g');
-  while ((match = regex.exec(content)) !== null) {
-    images.push(match[1]);
+  const regex1 = new RegExp(IMG_FILE_MARKER.source, 'g');
+  while ((match = regex1.exec(content)) !== null) {
+    images.push('file:' + match[1]);
+  }
+  // 旧格式 {{img:base64data}}
+  const regex2 = new RegExp(IMG_MARKER.source, 'g');
+  while ((match = regex2.exec(content)) !== null) {
+    images.push('data:' + match[1]);
   }
   return images;
 }
@@ -439,7 +429,10 @@ function extractImages(content) {
 const Storage = {
   key: 'my_blog_posts',
   getAll() {
-    try { return JSON.parse(localStorage.getItem(this.key) || '[]'); }
+    try {
+      const posts = JSON.parse(localStorage.getItem(this.key) || '[]');
+      return posts.map(p => ({ category: 'life', ...p })); // 旧文章默认生活
+    }
     catch { return []; }
   },
   save(posts) { localStorage.setItem(this.key, JSON.stringify(posts)); },
@@ -475,30 +468,51 @@ function formatDateShort(iso) {
 }
 
 // ==================== 导出 ====================
-function handleExport() {
-  const posts = Storage.getAll();
-  // 清理：去掉内部字段，保留公开需要的数据
-  const publicPosts = posts.map(p => ({
+async function handlePublish() {
+  const btn = document.querySelector('.btn-export');
+  const status = document.getElementById('publish-status');
+
+  btn.textContent = '⏳ 发布中...';
+  btn.disabled = true;
+  status.textContent = '正在部署到公网...';
+
+  const posts = Storage.getAll().map(p => ({
     id: p.id,
     title: p.title,
     content: p.content,
+    category: p.category || 'life',
     createdAt: p.createdAt,
     updatedAt: p.updatedAt
   }));
 
-  const json = JSON.stringify(publicPosts, null, 2);
-  const blob = new Blob([json], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
+  const profile = {
+    name: UserStore.getName(),
+    bio: UserStore.getBio(),
+    avatar: UserStore.getAvatar()
+  };
 
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'posts.json';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  try {
+    const res = await fetch('http://localhost:3456/api/deploy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ posts, profile })
+    });
+    const result = await res.json();
 
-  alert('posts.json 已下载！\n\n请将它放到博客文件夹中，替换旧的 posts.json。\n然后运行 git push 即可更新公网内容。');
+    if (result.ok) {
+      btn.textContent = '✅ 已发布';
+      status.innerHTML = `公网已更新！<br><a href="${result.url}" target="_blank" style="color:#78716c;">${result.url}</a>`;
+    } else {
+      btn.textContent = '⬆ 发布';
+      status.textContent = '发布失败：' + result.msg;
+    }
+  } catch (e) {
+    btn.textContent = '⬆ 发布';
+    status.textContent = '无法连接服务器，请先运行「启动编辑器.bat」';
+  }
+
+  btn.disabled = false;
+  setTimeout(() => { if (btn.textContent === '✅ 已发布') btn.textContent = '⬆ 发布'; }, 3000);
 }
 
 // ==================== 头像和个人信息 ====================
@@ -539,47 +553,112 @@ function editProfileBio() {
 }
 
 // ==================== 图片上传 ====================
-function handleImageUpload() {
+async function handleImageUpload() {
+  // 先记住光标位置（选文件前），防止失焦后位置丢失
+  const textarea = document.getElementById('post-content');
+  const savedPos = textarea ? textarea.selectionStart : 0;
+
   const input = document.createElement('input');
   input.type = 'file';
   input.accept = 'image/*';
   input.multiple = true;
-  input.onchange = function() {
-    Array.from(input.files).forEach(file => {
-      if (file.size > 2 * 1024 * 1024) {
-        alert(`图片「${file.name}」超过 2MB，已跳过。`);
+  input.onchange = async function() {
+    for (const file of Array.from(input.files)) {
+      if (file.size > 100 * 1024 * 1024) {
+        alert(`图片「${file.name}」超过 100MB，已跳过。`);
+        continue;
+      }
+      try {
+        const res = await fetch('http://localhost:3456/api/upload-image', {
+          method: 'POST',
+          headers: { 'X-Filename': encodeURIComponent(file.name) },
+          body: file,
+        });
+        const result = await res.json();
+        if (result.ok) {
+          // 用保存的光标位置插入标记，标记后加换行方便写文字
+          const marker = `{{img-file:${result.filename}}}\n`;
+          pendingImages.push('file:' + result.filename);
+          insertMarkerAt(marker, savedPos);
+          renderImagePreviews();
+        } else {
+          alert('图片上传失败：' + result.msg);
+        }
+      } catch (e) {
+        alert('无法连接服务器，请确认已运行启动编辑器.bat');
         return;
       }
-      const reader = new FileReader();
-      reader.onload = function() {
-        pendingImages.push(reader.result);
-        insertImageMarker(reader.result);
-        renderImagePreviews();
-      };
-      reader.readAsDataURL(file);
-    });
+    }
   };
   input.click();
 }
 
-function insertImageMarker(base64) {
+async function handleVideoUpload() {
+  const textarea = document.getElementById('post-content');
+  const savedPos = textarea ? textarea.selectionStart : 0;
+
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'video/*';
+  input.onchange = async function() {
+    const file = input.files[0];
+    if (!file) return;
+    if (file.size > 500 * 1024 * 1024) {
+      alert('视频超过 500MB，请先压缩或裁剪后再试。');
+      return;
+    }
+
+    const statusEl = document.getElementById('publish-status');
+    if (statusEl) statusEl.textContent = '正在上传视频...';
+
+    try {
+      const res = await fetch('http://localhost:3456/api/upload-video', {
+        method: 'POST',
+        headers: { 'X-Filename': encodeURIComponent(file.name) },
+        body: file,
+      });
+      const result = await res.json();
+
+      if (result.ok) {
+        const marker = `{{video:${result.filename}}}\n`;
+        insertMarkerAt(marker, savedPos);
+        if (statusEl) statusEl.textContent = '视频已添加：' + result.filename;
+      } else {
+        if (statusEl) statusEl.textContent = '上传失败：' + result.msg;
+        alert('上传失败：' + result.msg);
+      }
+    } catch (e) {
+      if (statusEl) statusEl.textContent = '无法连接服务器';
+      alert('无法连接服务器，请确认已运行启动编辑器.bat');
+    }
+  };
+  input.click();
+}
+
+function insertMarkerAt(marker, pos) {
   const textarea = document.getElementById('post-content');
   if (!textarea) return;
-  const marker = `{{img:${base64}}}`;
-  const start = textarea.selectionStart;
-  const end = textarea.selectionEnd;
-  const text = textarea.value;
-  textarea.value = text.slice(0, start) + marker + text.slice(end);
-  textarea.selectionStart = textarea.selectionEnd = start + marker.length;
+  // 恢复焦点
   textarea.focus();
+  const start = pos != null ? pos : textarea.selectionStart;
+  const text = textarea.value;
+  textarea.value = text.slice(0, start) + marker + text.slice(start);
+  // 光标放到标记后面，方便继续打字
+  const newPos = start + marker.length;
+  textarea.selectionStart = textarea.selectionEnd = newPos;
 }
 
 function removePendingImage(index) {
   const removed = pendingImages[index];
   pendingImages.splice(index, 1);
   const textarea = document.getElementById('post-content');
-  if (textarea && removed) {
-    textarea.value = textarea.value.replace(`{{img:${removed}}}`, '');
+  if (!textarea || !removed) return;
+  if (removed.startsWith('file:')) {
+    const filename = removed.slice(5);
+    textarea.value = textarea.value.replace(`{{img-file:${filename}}}`, '');
+  } else if (removed.startsWith('data:')) {
+    const data = removed.slice(5);
+    textarea.value = textarea.value.replace(`{{img:${data}}}`, '');
   }
   renderImagePreviews();
 }
@@ -588,12 +667,21 @@ function renderImagePreviews() {
   const container = document.getElementById('image-previews');
   if (!container) return;
   if (pendingImages.length === 0) { container.innerHTML = ''; return; }
-  container.innerHTML = pendingImages.map((img, i) => `
-    <div class="image-preview-item">
-      <img src="${escapeAttr(img)}" alt="图片 ${i + 1}">
-      <button class="remove-img" onclick="removePendingImage(${i})" title="移除">×</button>
-    </div>
-  `).join('');
+  container.innerHTML = pendingImages.map((img, i) => {
+    let src;
+    if (img.startsWith('file:')) {
+      src = 'http://localhost:3456/images/' + img.slice(5);
+    } else if (img.startsWith('data:')) {
+      src = img.slice(5);
+    } else {
+      src = img;
+    }
+    return `
+      <div class="image-preview-item">
+        <img src="${escapeAttr(src)}" alt="图片 ${i + 1}">
+        <button class="remove-img" onclick="removePendingImage(${i})" title="移除">×</button>
+      </div>`;
+  }).join('');
 }
 
 // ==================== 侧栏 ====================
@@ -630,7 +718,7 @@ function renderPostNav() {
   container.innerHTML = posts.map(p => `
     <div class="post-nav-item" data-id="${p.id}" onclick="router.navigate('edit', '${p.id}')">
       <span class="nav-date">${formatDateShort(p.createdAt)}</span>
-      <span class="nav-title">${escapeHtml(p.title || '无标题')}</span>
+      <span class="nav-title">${escapeHtml(p.title || '无标题')}<span class="nav-cat">${p.category === 'travel' ? '🗺' : p.category === 'patch' ? '📌' : p.category === 'thought' ? '💭' : p.category === 'reading' ? '📖' : '📝'}</span></span>
     </div>
   `).join('');
 }
@@ -655,6 +743,31 @@ const views = {
           <input type="date" id="post-date" value="${today()}">
         </div>
         <div class="form-group">
+          <label>分类</label>
+          <div class="category-selector">
+            <label class="category-option">
+              <input type="radio" name="post-category" value="life" checked>
+              <span>📝 生活</span>
+            </label>
+            <label class="category-option">
+              <input type="radio" name="post-category" value="travel">
+              <span>🗺️ 旅行</span>
+            </label>
+            <label class="category-option">
+              <input type="radio" name="post-category" value="reading">
+              <span>📖 阅读</span>
+            </label>
+            <label class="category-option">
+              <input type="radio" name="post-category" value="thought">
+              <span>💭 随想</span>
+            </label>
+            <label class="category-option">
+              <input type="radio" name="post-category" value="patch">
+              <span>📌 补丁</span>
+            </label>
+          </div>
+        </div>
+        <div class="form-group">
           <label>标题</label>
           <input type="text" id="post-title" placeholder="今天发生了什么…" autofocus>
         </div>
@@ -662,7 +775,10 @@ const views = {
           <label>内容</label>
           <div class="editor-toolbar">
             <button type="button" class="toolbar-btn" onclick="handleImageUpload()">
-              🖼 添加图片
+              🖼 图片
+            </button>
+            <button type="button" class="toolbar-btn" onclick="handleVideoUpload()">
+              🎬 视频
             </button>
           </div>
           <div class="image-previews" id="image-previews"></div>
@@ -693,6 +809,31 @@ const views = {
           <input type="date" id="post-date" value="${post.createdAt.slice(0,10)}">
         </div>
         <div class="form-group">
+          <label>分类</label>
+          <div class="category-selector">
+            <label class="category-option">
+              <input type="radio" name="post-category" value="life"${!post.category || post.category === 'life' ? ' checked' : ''}>
+              <span>📝 生活</span>
+            </label>
+            <label class="category-option">
+              <input type="radio" name="post-category" value="travel"${post.category === 'travel' ? ' checked' : ''}>
+              <span>🗺️ 旅行</span>
+            </label>
+            <label class="category-option">
+              <input type="radio" name="post-category" value="reading"${post.category === 'reading' ? ' checked' : ''}>
+              <span>📖 阅读</span>
+            </label>
+            <label class="category-option">
+              <input type="radio" name="post-category" value="thought"${post.category === 'thought' ? ' checked' : ''}>
+              <span>💭 随想</span>
+            </label>
+            <label class="category-option">
+              <input type="radio" name="post-category" value="patch"${post.category === 'patch' ? ' checked' : ''}>
+              <span>📌 补丁</span>
+            </label>
+          </div>
+        </div>
+        <div class="form-group">
           <label>标题</label>
           <input type="text" id="post-title" value="${escapeAttr(post.title || '')}" autofocus>
         </div>
@@ -700,7 +841,10 @@ const views = {
           <label>内容</label>
           <div class="editor-toolbar">
             <button type="button" class="toolbar-btn" onclick="handleImageUpload()">
-              🖼 添加图片
+              🖼 图片
+            </button>
+            <button type="button" class="toolbar-btn" onclick="handleVideoUpload()">
+              🎬 视频
             </button>
           </div>
           <div class="image-previews" id="image-previews"></div>
@@ -727,13 +871,6 @@ const router = {
 
     window.scrollTo(0, 0);
 
-    // 导航高亮
-    const navNew = document.getElementById('nav-new');
-    if (navNew) {
-      if (view === 'new') navNew.classList.add('active');
-      else navNew.classList.remove('active');
-    }
-
     // 图片预览
     if (view === 'edit' || view === 'new') {
       renderImagePreviews();
@@ -749,6 +886,7 @@ function today() {
 function handleCreate(e) {
   e.preventDefault();
   const dateVal = document.getElementById('post-date').value;
+  const category = document.querySelector('input[name="post-category"]:checked')?.value || 'life';
   const title = document.getElementById('post-title').value.trim();
   const content = document.getElementById('post-content').value.trim();
   if (!content) return;
@@ -758,7 +896,7 @@ function handleCreate(e) {
     : new Date().toISOString();
 
   const id = genId();
-  Storage.add({ id, title, content, createdAt, updatedAt: createdAt });
+  Storage.add({ id, title, content, category, createdAt, updatedAt: createdAt });
   pendingImages = [];
   renderSidebar();
   router.navigate('edit', id);
@@ -767,6 +905,7 @@ function handleCreate(e) {
 function handleUpdate(e, id) {
   e.preventDefault();
   const dateVal = document.getElementById('post-date').value;
+  const category = document.querySelector('input[name="post-category"]:checked')?.value || 'life';
   const title = document.getElementById('post-title').value.trim();
   const content = document.getElementById('post-content').value.trim();
   if (!content) return;
@@ -775,7 +914,7 @@ function handleUpdate(e, id) {
     ? new Date(dateVal + 'T12:00:00+08:00').toISOString()
     : undefined;
 
-  Storage.update(id, { title, content, ...(createdAt && { createdAt }) });
+  Storage.update(id, { title, content, category, ...(createdAt && { createdAt }) });
   pendingImages = [];
   renderSidebar();
   // 停留在当前页面
@@ -799,9 +938,34 @@ function escapeAttr(str) {
   return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-// ==================== 启动 ====================
-renderSidebar();
-router.navigate('new');
+// ==================== 启动时尝试从服务器同步 ====================
+async function init() {
+  // 本地数据优先，服务器数据仅在没有本地数据时使用
+  let needSync = Storage.getAll().length === 0;
+  if (needSync) {
+    try {
+      const res = await fetch('http://localhost:3456/posts.json');
+      if (res.ok) {
+        const serverPosts = await res.json();
+        if (serverPosts.length > 0) Storage.save(serverPosts);
+      }
+    } catch(e) {}
+  }
+  // 个人信息同步（本地为空时从服务器加载）
+  if (!UserStore.get().name || UserStore.get().name === '未命名') {
+    try {
+      const res = await fetch('http://localhost:3456/profile.json');
+      if (res.ok) {
+        const profile = await res.json();
+        if (profile.name && profile.name !== '未命名') UserStore.set(profile);
+      }
+    } catch(e) {}
+  }
+  renderSidebar();
+  router.navigate('new');
+}
+
+init();
 </script>
 
 </body>

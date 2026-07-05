@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>三晋行 · 中原文化 10日自驾路线图</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: -apple-system, "Microsoft YaHei", sans-serif; background:#1a1a2e; }
+#map { height:100vh; width:100vw; }
+
+.legend { z-index:1002; 
+  position:fixed; bottom:30px; right:20px;
+  background:rgba(20,20,40,0.55); color:#ddd; padding:16px 20px;
+  border-radius:12px; font-size:14px; line-height:2;
+  border:1px solid rgba(255,255,255,0.12);
+  backdrop-filter:blur(8px); max-height:60vh; overflow-y:auto;
+}
+.legend h3 {
+      color:#fff; font-size:16px; margin-bottom:6px;
+      cursor:pointer; display:flex; align-items:center; justify-content:space-between;
+      user-select:none;
+    }
+    .legend h3 .toggle-icon { font-size:12px; transition:transform 0.3s; }
+    .legend.collapsed h3 .toggle-icon { transform:rotate(-90deg); }
+    .legend.collapsed .legend-body { display:none; }
+    .legend.collapsed { padding:8px 14px; }
+    @media (max-width:768px) {
+  .legend { max-height:none; }
+  .info-panel { bottom:20px; left:8px; font-size:11px; padding:6px 10px; }
+  .title-banner { font-size:11px; padding:4px 10px; top:8px; }
+}
+.legend .day { display:flex; align-items:center; gap:8px; }
+.legend .dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.legend .line { width:22px; height:2px; flex-shrink:0; border-radius:1px; }
+.legend .dash { width:22px; height:0; flex-shrink:0; border-top:2px dashed #888; }
+
+.title-banner {
+  position:fixed; top:16px; left:50%; transform:translateX(-50%); z-index:1000;
+  background:rgba(20,20,40,0.9); color:#fff; padding:10px 24px;
+  border-radius:20px; font-size:13px; font-weight:500;
+  pointer-events:auto; cursor:pointer; border:1px solid rgba(255,255,255,0.15);
+  backdrop-filter:blur(8px); letter-spacing:1px; user-select:none;
+  display:flex; align-items:center; gap:8px;
+}
+.title-banner.collapsed { font-size:18px; padding:8px 14px; }
+.title-banner.collapsed .tb-text { display:none; }
+
+.info-panel {
+  position:fixed; bottom:30px; left:16px; z-index:1000;
+  background:rgba(20,20,40,0.55); color:#bbb; padding:8px 14px;
+  border-radius:10px; font-size:11px; border:1px solid rgba(255,255,255,0.1);
+  cursor:pointer; user-select:none; line-height:1.8;
+  display:flex; flex-direction:column; gap:0;
+  backdrop-filter:blur(6px);
+}
+.info-panel.collapsed .ip-text { display:none; }
+.info-panel.collapsed { padding:6px 10px; }
+.info-panel span { color:#fff; font-weight:700; }
+</style>
+</head>
+<body>
+
+<div class="title-banner" onclick="this.classList.toggle('collapsed')"><span class="tb-text">三晋行</span> 🏔️</div>
+
+<div id="map"></div>
+
+<div class="legend">
+  <h3 onclick="this.parentElement.classList.toggle('collapsed')">📋 图例 <span class="toggle-icon">▼</span></h3>
+        <div class="legend-body"><div class="day"><span class="line" style="background:#888"></span> D0 武汉 → 许昌（赠送夜）</div>
+  <div class="day"><span class="line" style="background:#4A90D9"></span> D1 许昌 → 晋城</div>
+  <div class="day"><span class="line" style="background:#7B68EE"></span> D2 晋城 → 平遥</div>
+  <div class="day"><span class="line" style="background:#2ECC71"></span> D3 平遥 → 太原</div>
+  <div class="day"><span class="line" style="background:#E8913A"></span> D4 太原 → 五台山</div>
+  <div class="day"><span class="line" style="background:#E74C3C"></span> D5 五台山 → 应县 → 大同</div>
+  <div class="day"><span class="line" style="background:#E67E22"></span> D7 大同 → 临汾</div>
+  <div class="day"><span class="line" style="background:#27AE60"></span> D8 临汾 → 洛阳</div>
+  <div class="day"><span class="line" style="background:#F39C12"></span> D9 洛阳 → 武汉</div>
+  <hr style="border-color:rgba(255,255,255,0.1); margin:8px 0;">
+  <div class="day"><span class="dot" style="background:#fff; border:2px solid #4A90D9"></span> ● 住宿过夜</div>
+  <div class="day"><span class="dot" style="background:#aaa"></span> ○ 途经/游览</div>
+  <div class="day"><span class="dot" style="background:#E74C3C"></span> ★ 大同（全程核心）</div></div></div>
+
+<div class="info-panel" onclick="this.classList.toggle('collapsed')"><span class="ip-text">总驾驶 ≈ <span>2600 km</span><br>最高海拔 <span>1700 m</span><br>人文拉满 · 面食天堂<br>点击标记查看详情</span></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// ── Basemap ──────────────────────────────────────────────
+const map = L.map('map', { attributionControl:false }).setView([36.0, 112.8], 6.5);
+
+L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', { subdomains:'1234', maxZoom:18 }).addTo(map);
+
+// ── Color palette ────────────────────────────────────────
+const C = {
+  d0:       '#888888',
+  d1:       '#4A90D9',
+  d2:       '#7B68EE',
+  d3:       '#2ECC71',
+  d4:       '#E8913A',
+  d5:       '#E74C3C',
+  d7:       '#E67E22',
+  d8:       '#27AE60',
+  d9:       '#F39C12',
+  overnight:'#ffffff',
+  passthru: '#aaaaaa',
+  highlight:'#E74C3C',
+};
+
+// ── Driving route segments ───────────────────────────────
+function addRoute(coords, color, weight=3.5, dash=null) {
+  return L.polyline(coords, { color, weight, opacity:0.85, dashArray:dash, smoothFactor:1 }).addTo(map);
+}
+
+// D0: 武汉 → 许昌
+addRoute([
+  [30.5928, 114.3055],  // 武汉
+  [31.00, 114.10],
+  [31.80, 114.00],
+  [32.40, 113.90],
+  [33.20, 113.88],
+  [34.0358, 113.8522],  // 许昌
+], C.d0, 3);
+
+// D1: 许昌 → 晋城
+addRoute([
+  [34.0358, 113.8522],  // 许昌
+  [34.30, 113.80],
+  [34.80, 113.50],
+  [35.10, 113.20],
+  [35.30, 112.95],
+  [35.4906, 112.8518],  // 晋城
+], C.d1);
+
+// D2: 晋城 → 平遥
+addRoute([
+  [35.4906, 112.8518],  // 晋城
+  [35.80, 112.80],
+  [36.20, 112.70],
+  [36.60, 112.50],
+  [36.90, 112.30],
+  [37.1894, 112.1764],  // 平遥
+], C.d2);
+
+// D3: 平遥 → 太原 (via 双林寺+晋祠)
+addRoute([
+  [37.1894, 112.1764],  // 平遥
+  [37.30, 112.25],
+  [37.50, 112.38],
+  [37.7100, 112.4400],  // 晋祠
+  [37.80, 112.50],
+  [37.8706, 112.5489],  // 太原
+], C.d3);
+
+// D4: 太原 → 忻州 → 五台山
+addRoute([
+  [37.8706, 112.5489],  // 太原
+  [38.10, 112.60],
+  [38.4167, 112.7342],  // 忻州
+  [38.55, 112.85],
+  [38.70, 113.10],
+  [38.85, 113.35],
+  [39.0083, 113.5936],  // 五台山
+], C.d4);
+
+// D5: 五台山 → 应县 → 大同
+addRoute([
+  [39.0083, 113.5936],  // 五台山
+  [39.10, 113.55],
+  [39.30, 113.40],
+  [39.45, 113.28],
+  [39.5650, 113.1910],  // 应县木塔
+  [39.65, 113.20],
+  [39.85, 113.25],
+  [40.0768, 113.3001],  // 大同
+], C.d5, 4.5);
+
+// D6: 大同 → 悬空寺往返 (虚线)
+addRoute([
+  [40.0768, 113.3001],
+  [39.90, 113.45],
+  [39.78, 113.58],
+  [39.6600, 113.7100],  // 悬空寺
+], C.d5, 2, '6 4');
+addRoute([
+  [39.6600, 113.7100],
+  [39.78, 113.58],
+  [39.90, 113.45],
+  [40.0768, 113.3001],
+], C.d5, 2, '6 4');
+
+// D7: 大同 → 临汾
+addRoute([
+  [40.0768, 113.3001],  // 大同
+  [39.80, 113.20],
+  [39.20, 112.90],
+  [38.60, 112.70],
+  [38.00, 112.55],
+  [37.50, 112.35],
+  [37.00, 112.10],
+  [36.50, 111.80],
+  [36.0880, 111.5189],  // 临汾
+], C.d7);
+
+// D8: 临汾 → 洛阳
+addRoute([
+  [36.0880, 111.5189],  // 临汾
+  [35.80, 111.60],
+  [35.40, 111.85],
+  [35.10, 112.20],
+  [34.80, 112.35],
+  [34.6197, 112.4539],  // 洛阳
+], C.d8);
+
+// D9: 洛阳 → 武汉
+addRoute([
+  [34.6197, 112.4539],  // 洛阳
+  [34.20, 112.70],
+  [33.60, 113.00],
+  [33.00, 113.30],
+  [32.20, 113.70],
+  [31.40, 114.00],
+  [30.5928, 114.3055],  // 武汉
+], C.d9);
+
+// ── Marker helpers ───────────────────────────────────────
+function overnight(lat,lng, label, popup) {
+  const m = L.circleMarker([lat,lng], {
+    radius:9, fillColor:C.overnight, fillOpacity:1, color:C.d1, weight:2.5
+  }).addTo(map);
+  m.bindTooltip(`<b>${label}</b>`, {permanent:true, direction:'right', offset:[12,0],
+    className:'tl-overnight'});
+  if(popup) m.bindPopup(popup);
+  return m;
+}
+function passthru(lat,lng, label, popup) {
+  const m = L.circleMarker([lat,lng], {
+    radius:5.5, fillColor:C.passthru, fillOpacity:0.85, color:'#666', weight:1.5
+  }).addTo(map);
+  m.bindTooltip(label, {permanent:true, direction:'right', offset:[8,0],
+    className:'tl-passthru'});
+  if(popup) m.bindPopup(popup);
+  return m;
+}
+function highlight(lat,lng, label, popup) {
+  const m = L.circleMarker([lat,lng], {
+    radius:10, fillColor:C.highlight, fillOpacity:0.9, color:'#fff', weight:2.5
+  }).addTo(map);
+  m.bindTooltip(`<b>⭐ ${label}</b>`, {permanent:true, direction:'top', offset:[0,-14],
+    className:'tl-highlight'});
+  if(popup) m.bindPopup(popup);
+  return m;
+}
+function flightPt(lat,lng, label, popup) {
+  const m = L.circleMarker([lat,lng], {
+    radius:5, fillColor:'#ddd', fillOpacity:0.7, color:'#888', weight:1.2, dashArray:'3 2'
+  }).addTo(map);
+  m.bindTooltip(`${label}`, {permanent:true, direction:'right', offset:[8,0],
+    className:'tl-flight'});
+  if(popup) m.bindPopup(popup);
+  return m;
+}
+
+// ── Place markers ────────────────────────────────────────
+
+// 武汉
+flightPt(30.5928, 114.3055, '武汉',
+  '<b>🏠 武汉</b><br>起点 & 终点<br>D0 下午出发<br>D9 傍晚返回');
+
+// D0: 许昌
+overnight(34.0358, 113.8522, '许昌', 0,
+  '<b>🏠 许昌</b> — D0 住宿<br>曹魏故都 · 海拔 70m<br>整备物资 · 河南烩面<br>D0 赠送夜，可自由取舍');
+
+// D1: 晋城
+passthru(35.5200, 112.5700, '皇城相府',
+  '<b>🏛️ 皇城相府</b><br>D2 上午（可选）<br>康熙帝师陈廷敬故居<br>门票 ¥120');
+overnight(35.4906, 112.8518, '晋城', 1,
+  '<b>🏠 晋城</b> — D1 住宿<br>太行南麓 · 入晋第一站<br>过油肉 · 炒凉粉 · 刀削面');
+
+// D2: 平遥
+passthru(37.1700, 112.1300, '双林寺',
+  '<b>🪷 双林寺</b><br>D3 上午<br>2000+ 尊明代彩塑<br>门票 ¥35');
+overnight(37.1894, 112.1764, '平遥', 2,
+  '<b>🏠 平遥</b> — D2 住宿<br>明清古城 · 通票 ¥125<br>县衙 · 日升昌票号 · 城墙<br>平遥牛肉 · 碗托 · 栲栳栳');
+
+// D3: 太原
+passthru(37.7100, 112.4400, '晋祠',
+  '<b>🏛️ 晋祠</b><br>D3 下午<br>宋代彩塑侍女像 · 鱼沼飞梁<br>门票 ¥80');
+overnight(37.8706, 112.5489, '太原', 3,
+  '<b>🏠 太原</b> — D3 住宿<br>龙城 · 海拔 800m<br>山西博物院（免费）<br>刀削面祖师爷 · 头脑');
+
+// D4: 五台山
+passthru(38.4167, 112.7342, '忻州',
+  '<b>忻州</b><br>D4 途经');
+overnight(39.0083, 113.5936, '五台山', 4,
+  '<b>🏠 五台山</b> — D4 住宿<br>佛国清凉 · 海拔 1700m<br>五爷庙 · 塔院寺大白塔<br>显通寺 · 菩萨顶<br>进山 ¥135 · 8月避暑胜地');
+
+// D5: 应县 → 大同
+passthru(39.5650, 113.1910, '应县木塔',
+  '<b>🗼 应县木塔</b><br>D5 上午<br>世界最高最古木塔 · 1056 年<br>全榫卯结构 · 千年不倒<br>门票 ¥60');
+passthru(40.1100, 113.1300, '云冈石窟',
+  '<b>🗿 云冈石窟</b><br>D5 下午 3h<br>中国四大石窟之冠<br>昙曜五窟 · 露天大佛<br>门票 ¥120');
+
+// D6: 悬空寺
+passthru(39.6600, 113.7100, '悬空寺',
+  '<b>🏯 悬空寺</b><br>D6 上午<br>恒山绝壁 · 1500 年<br>外观 ¥15+登临 ¥100<br>⚠️ 登临限流，早到！');
+
+// 大同 (D5+D6 两晚) — 全程核心！
+highlight(40.0768, 113.3001, '大同 — 全程核心',
+  '<b>⭐ 大同 — 全程核心！</b><br>D5+D6 住宿（两晚）<br>云冈石窟 · 华严寺 · 善化寺<br>悬空寺 · 九龙壁 · 古城墙<br>刀削面第二战场 · 浑源凉粉');
+
+// D7: 临汾
+passthru(36.2800, 111.6700, '洪洞大槐树',
+  '<b>🌳 洪洞大槐树</b><br>D7 下午（可选）<br>明代移民寻根圣地<br>门票 ¥80');
+overnight(36.0880, 111.5189, '临汾', 7,
+  '<b>🏠 临汾</b> — D7 住宿<br>尧帝故都 · 海拔 450m<br>牛肉丸子面 · 汾河夜景');
+
+// D8: 洛阳
+passthru(34.5500, 112.4700, '龙门石窟',
+  '<b>🐉 龙门石窟</b><br>D8 下午 2.5-3h<br>奉先寺卢舍那大佛<br>据传按武则天容貌雕凿<br>门票 ¥90');
+overnight(34.6197, 112.4539, '洛阳', 8,
+  '<b>🏠 洛阳</b> — D8 住宿<br>神都 · 海拔 150m<br>洛邑古城 · 汉服圣地<br>水席 · 牛肉汤 · 烩面');
+
+// D9: 洛阳 → 武汉
+passthru(34.7200, 112.6100, '白马寺',
+  '<b>🛕 白马寺</b><br>D9 上午<br>中国第一座官办寺院<br>佛教传入中国的起点<br>门票 ¥35');
+
+// ── Fit bounds ───────────────────────────────────────────
+const allMarkers = [];
+map.eachLayer(l => { if(l.getLatLng) allMarkers.push(l.getLatLng()); });
+const group = L.featureGroup(allMarkers.map(ll => L.marker(ll)));
+map.fitBounds(group.getBounds().pad(0.08));
+
+// ── Custom tooltip styles ────────────────────────────────
+const style = document.createElement('style');
+style.textContent = `
+  .tl-overnight {
+    background:rgba(20,20,40,0.9); color:#fff; border:1px solid #4A90D9;
+    border-radius:6px; padding:2px 8px; font-size:13px; white-space:nowrap;
+    box-shadow:0 2px 8px rgba(0,0,0,0.4);
+  }
+  .tl-passthru {
+    background:rgba(30,30,50,0.85); color:#ccc; border:1px solid #555;
+    border-radius:5px; padding:1px 7px; font-size:11px; white-space:nowrap;
+  }
+  .tl-highlight {
+    background:rgba(180,20,20,0.9); color:#fff; border:2px solid #ff6b6b;
+    border-radius:6px; padding:3px 10px; font-size:14px; white-space:nowrap;
+    box-shadow:0 2px 12px rgba(255,0,0,0.3);
+  }
+  .tl-flight {
+    background:rgba(30,30,50,0.8); color:#bbb; border:1px dashed #777;
+    border-radius:4px; padding:1px 6px; font-size:10px; white-space:nowrap;
+  }
+  .leaflet-popup-content { font-family:"Microsoft YaHei",sans-serif; font-size:13px; line-height:1.6; }
+  .leaflet-popup-content b { color:#333; }
+`;
+document.head.appendChild(style);
+</script>
+</body>
+</html>
