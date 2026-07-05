@@ -674,25 +674,45 @@ const views = {
           <h1 class="post-title">${escapeHtml(post.title || '无标题')}</h1>
         </div>
         <div class="article-body">${formatContent(post.content)}</div>
-        <a class="back-link" onclick="router.navigate('list', '${post.category || 'life'}')">← 返回列表</a>
+        <a class="back-link" onclick="router.back()">← 返回</a>
       </article>`;
   }
 };
 
 // ==================== 路由 ====================
 const router = {
+  current: null,  // { view, param }
+  prev: null,     // { view, param }
+
   navigate(view, param) {
     const app = document.getElementById('app');
     if (!app) return;
 
+    // 保存当前页面作为返回目标
+    if (this.current && view !== this.current.view) {
+      this.prev = this.current;
+    }
+
+    // 渲染
     if (view === 'portal') app.innerHTML = views.portal();
     else if (view === 'list') app.innerHTML = views.list(param);
     else if (view === 'post') app.innerHTML = views.post(param);
     else app.innerHTML = views.portal();
 
+    this.current = { view, param };
     window.scrollTo(0, 0);
     if (view === 'post') setArchiveActive(param);
     else setArchiveActive(null);
+  },
+
+  back() {
+    if (this.prev) {
+      const p = this.prev;
+      this.prev = null;
+      this.navigate(p.view, p.param);
+    } else {
+      this.navigate('portal');
+    }
   }
 };
 
