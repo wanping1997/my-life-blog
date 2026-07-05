@@ -115,6 +115,9 @@
   }
 
   .archive-list { list-style: none; }
+  @media (max-width: 768px) {
+    .archive-list.mobile-hidden { display: none; }
+  }
 
   .archive-item {
     padding: 10px 0;
@@ -703,6 +706,13 @@ const router = {
     window.scrollTo(0, 0);
     if (view === 'post') setArchiveActive(param);
     else setArchiveActive(null);
+
+    // 手机端：只在首页显示文章档案列表
+    const archiveList = document.getElementById('archive-list');
+    if (archiveList) {
+      if (view === 'portal') archiveList.classList.remove('mobile-hidden');
+      else archiveList.classList.add('mobile-hidden');
+    }
   },
 
   back() {
