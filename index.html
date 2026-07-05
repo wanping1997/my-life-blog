@@ -257,10 +257,6 @@
     border-color: var(--text-muted);
     background: var(--surface);
   }
-  .portal-card .card-icon {
-    font-size: 24px;
-    margin-bottom: 10px;
-  }
   .portal-card .card-label {
     font-size: 18px;
     font-weight: 500;
@@ -606,22 +602,18 @@ const views = {
     return `
       <div class="portal-cards">
         <div class="portal-card" onclick="router.navigate('list', 'life')">
-          <div class="card-icon">📝</div>
           <div class="card-label">生活</div>
           <div class="card-desc">记录日常点滴${lifeCount > 0 ? '，共 ' + lifeCount + ' 篇' : ''}</div>
         </div>
         <div class="portal-card" onclick="router.navigate('list', 'travel')">
-          <div class="card-icon">🗺️</div>
           <div class="card-label">旅行</div>
           <div class="card-desc">旅途见闻与计划${travelCount > 0 ? '，共 ' + travelCount + ' 篇' : ''}</div>
         </div>
         <div class="portal-card" onclick="router.navigate('list', 'reading')">
-          <div class="card-icon">📖</div>
           <div class="card-label">阅读</div>
           <div class="card-desc">读过的书与笔记${readingCount > 0 ? '，共 ' + readingCount + ' 篇' : ''}</div>
         </div>
         <div class="portal-card" onclick="router.navigate('list', 'thought')">
-          <div class="card-icon">💭</div>
           <div class="card-label">随想</div>
           <div class="card-desc">一闪而过的念头${thoughtCount > 0 ? '，共 ' + thoughtCount + ' 篇' : ''}</div>
         </div>
