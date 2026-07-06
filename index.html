@@ -923,6 +923,14 @@ document.addEventListener('keydown', function(e) {
 
 // ==================== 封面 ====================
 function initCover() {
+  const cover = document.getElementById('cover');
+
+  // 如果已经进入过主页（同一次会话），刷新时跳过封面
+  if (sessionStorage.getItem('cover_entered')) {
+    cover.classList.add('hidden');
+    return;
+  }
+
   const avatar = profileData.avatar || '';
   document.getElementById('cover-avatar-display').innerHTML = avatar
     ? `<img src="${escapeAttr(avatar)}" alt="头像">`
@@ -930,8 +938,9 @@ function initCover() {
   document.getElementById('cover-name').textContent = profileData.name || '未命名';
   document.getElementById('cover-bio').textContent = profileData.bio || '';
 
-  document.getElementById('cover').addEventListener('click', function() {
+  cover.addEventListener('click', function() {
     this.classList.add('hidden');
+    sessionStorage.setItem('cover_entered', '1');
   });
 }
 
