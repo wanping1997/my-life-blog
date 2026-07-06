@@ -493,7 +493,7 @@
 
 <nav class="navbar">
   <div class="navbar-inner">
-    <a class="navbar-brand" onclick="router.navigate('portal')">记录</a>
+    <a class="navbar-brand" onclick="router.goHome()">首页</a>
     <div class="navbar-links">
     </div>
   </div>
@@ -766,7 +766,7 @@ const views = {
 
     if (filtered.length === 0) {
       const emptyMsg = category === 'travel' ? '还没有旅行记录' : category === 'thought' ? '还没有随想' : category === 'reading' ? '还没有阅读记录' : '还没有生活记录';
-      return `${subNav}<div class="empty-state"><p>${emptyMsg}</p><p style="font-size:14px;color:#d6d3d1;margin-top:8px;"><a class="back-link" onclick="router.navigate('portal')">← 返回</a></p></div>`;
+      return `${subNav}<div class="empty-state"><p>${emptyMsg}</p><p style="font-size:14px;color:#d6d3d1;margin-top:8px;"><a class="back-link" onclick="router.goHome()">← 首页</a></p></div>`;
     }
     const items = filtered.map(p => `
       <li class="post-item" onclick="router.navigate('post', '${p.id}')">
@@ -774,7 +774,7 @@ const views = {
         <div class="post-title">${escapeHtml(p.title || '无标题')}${hasImages(p.content) ? '<span class="has-image">📷</span>' : ''}</div>
         <div class="post-excerpt">${escapeHtml(getExcerpt(p.content))}</div>
       </li>`).join('');
-    return `${subNav}<div class="section-header">${label}</div><ul class="post-list">${items}</ul><a class="back-link" onclick="router.navigate('portal')">← 返回首页</a>`;
+    return `${subNav}<div class="section-header">${label}</div><ul class="post-list">${items}</ul><a class="back-link" onclick="router.goHome()">← 首页</a>`;
   },
 
   // 文章详情
@@ -830,6 +830,13 @@ const router = {
     } else {
       this.navigate('portal');
     }
+  },
+
+  goHome() {
+    // 确保封面不会重现
+    sessionStorage.setItem('cover_entered', '1');
+    document.getElementById('cover').classList.add('hidden');
+    this.navigate('portal');
   }
 };
 
@@ -949,7 +956,7 @@ async function init() {
   await Promise.all([loadPosts(), loadProfile()]);
   initCover();
   renderSidebar();
-  router.navigate('portal');
+  router.goHome();
 }
 
 init();
