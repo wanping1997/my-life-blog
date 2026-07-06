@@ -411,9 +411,52 @@
     .article-body img { max-width: 80%; }
     .portal-card { padding: 24px 20px; }
   }
+  /* ===== 封面 ===== */
+  .cover {
+    position: fixed; inset: 0; z-index: 10000;
+    background: var(--bg);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+  }
+  .cover.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+  .cover-avatar {
+    width: 100px; height: 100px; border-radius: 50%;
+    overflow: hidden; margin-bottom: 24px;
+    animation: coverFadeIn 0.8s ease;
+  }
+  .cover-avatar img {
+    width: 100%; height: 100%; object-fit: cover;
+  }
+  .cover-name {
+    font-size: 22px; font-weight: 500; color: var(--text);
+    letter-spacing: 3px; margin-bottom: 8px;
+    animation: coverFadeIn 0.8s ease 0.15s both;
+  }
+  .cover-bio {
+    font-size: 14px; color: var(--text-muted);
+    animation: coverFadeIn 0.8s ease 0.3s both;
+  }
+  .cover-hint {
+    position: absolute; bottom: 60px;
+    font-size: 13px; color: var(--text-muted);
+    animation: coverFadeIn 0.8s ease 0.6s both;
+  }
+  @keyframes coverFadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
 </style>
 </head>
 <body>
+
+<div class="cover" id="cover">
+  <div class="cover-avatar"><div id="cover-avatar-display"></div></div>
+  <div class="cover-name" id="cover-name"></div>
+  <div class="cover-bio" id="cover-bio"></div>
+  <div class="cover-hint">轻触进入</div>
+</div>
 
 <nav class="navbar">
   <div class="navbar-inner">
@@ -799,9 +842,24 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'ArrowRight') { e.preventDefault(); navigateLightbox(1); }
 });
 
+// ==================== 封面 ====================
+function initCover() {
+  const avatar = profileData.avatar || '';
+  document.getElementById('cover-avatar-display').innerHTML = avatar
+    ? `<img src="${escapeAttr(avatar)}" alt="头像">`
+    : '<div class="avatar-placeholder">👤</div>';
+  document.getElementById('cover-name').textContent = profileData.name || '未命名';
+  document.getElementById('cover-bio').textContent = profileData.bio || '';
+
+  document.getElementById('cover').addEventListener('click', function() {
+    this.classList.add('hidden');
+  });
+}
+
 // ==================== 启动 ====================
 async function init() {
   await Promise.all([loadPosts(), loadProfile()]);
+  initCover();
   renderSidebar();
   router.navigate('portal');
 }
