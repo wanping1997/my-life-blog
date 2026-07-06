@@ -376,36 +376,69 @@
     text-align: center;
   }
 
+  /* ===== 手机端顶部栏 ===== */
+  .mobile-topbar {
+    display: none;
+  }
+  .mobile-archive {
+    display: none;
+  }
+
   /* ===== 响应式 ===== */
   @media (max-width: 768px) {
-    .page-wrapper {
-      flex-direction: column;
-      gap: 0;
-    }
-    .sidebar {
-      width: 100%;
-      position: static;
-      max-height: none;
-      overflow-y: visible;
-      padding-top: 32px;
-      padding-bottom: 24px;
-      border-bottom: 1px solid var(--border);
-    }
-    .profile {
+    .sidebar { display: none; }
+    .page-wrapper { flex-direction: column; gap: 0; }
+
+    .mobile-topbar {
       display: flex;
       align-items: center;
-      gap: 16px;
-      text-align: left;
-      padding-bottom: 0;
-      border-bottom: none;
-      margin-bottom: 20px;
+      gap: 12px;
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--border);
     }
-    .avatar-wrapper {
-      width: 56px;
-      height: 56px;
-      margin: 0;
+    .mtb-avatar {
+      width: 36px; height: 36px; border-radius: 50%; overflow: hidden;
       flex-shrink: 0;
     }
+    .mtb-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .mtb-avatar .avatar-placeholder {
+      width: 100%; height: 100%; background: var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; color: var(--text-muted);
+    }
+    .mtb-name {
+      flex: 1; font-size: 15px; font-weight: 500; color: var(--text);
+    }
+    .mtb-archive-btn {
+      background: none; border: 1px solid var(--border);
+      color: var(--text-secondary); font-size: 16px;
+      padding: 4px 12px; border-radius: 4px; cursor: pointer;
+      font-family: inherit;
+    }
+
+    /* 手机端文章下拉 */
+    .mobile-archive {
+      display: none;
+      border-bottom: 1px solid var(--border);
+      padding: 8px 20px 16px;
+      max-height: 50vh; overflow-y: auto;
+    }
+    .mobile-archive.open { display: block; }
+    .mobile-archive .ma-item {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 0; cursor: pointer;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      font-size: 13px; color: var(--text-secondary);
+    }
+    .mobile-archive .ma-item:hover { color: var(--text); }
+    .mobile-archive .ma-date {
+      font-size: 11px; color: var(--accent); flex-shrink: 0; width: 32px;
+    }
+    .mobile-archive .ma-title {
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;
+    }
+    .mobile-archive .ma-cat { font-size: 11px; flex-shrink: 0; }
+
     .main-content { padding-top: 24px; padding-bottom: 80px; }
     .article-header .post-title { font-size: 22px; }
     .article-body img { max-width: 80%; }
@@ -465,6 +498,14 @@
     </div>
   </div>
 </nav>
+
+<!-- 手机端顶部栏 -->
+<div class="mobile-topbar" id="mobile-topbar">
+  <div class="mtb-avatar"><div id="mtb-avatar-display"></div></div>
+  <span class="mtb-name" id="mtb-name"></span>
+  <button class="mtb-archive-btn" id="mtb-archive-btn" onclick="toggleMobileArchive()">☰</button>
+</div>
+<div class="mobile-archive" id="mobile-archive"></div>
 
 <div class="page-wrapper">
 
@@ -594,7 +635,7 @@ function formatContent(text) {
 
 // ==================== 侧栏渲染 ====================
 function renderSidebar() {
-  // 头像
+  // 头像 (桌面端)
   const avatarContainer = document.getElementById('avatar-display');
   const avatar = profileData.avatar || '';
   if (avatarContainer) {
@@ -603,27 +644,71 @@ function renderSidebar() {
       : '<div class="avatar-placeholder">👤</div>';
   }
 
-  // 昵称 & 简介
+  // 昵称 & 简介 (桌面端)
   const nameEl = document.getElementById('profile-name');
   const bioEl = document.getElementById('profile-bio');
   if (nameEl) nameEl.textContent = profileData.name || '未命名';
   if (bioEl) bioEl.textContent = profileData.bio || '写一句简介…';
 
-  // 文章档案
-  const archiveList = document.getElementById('archive-list');
-  if (!archiveList) return;
+  // 手机端顶部栏
+  const mtbAvatar = document.getElementById('mtb-avatar-display');
+  if (mtbAvatar) {
+    mtbAvatar.innerHTML = avatar
+      ? `<img src="${escapeAttr(avatar)}" alt="头像">`
+      : '<div class="avatar-placeholder">👤</div>';
+  }
+  const mtbName = document.getElementById('mtb-name');
+  if (mtbName) mtbName.textContent = profileData.name || '未命名';
 
-  if (postsData.length === 0) {
-    archiveList.innerHTML = '<li class="archive-empty">暂无文章</li>';
-    return;
+  // 文章档案 (桌面端)
+  const archiveList = document.getElementById('archive-list');
+  if (archiveList) {
+    if (postsData.length === 0) {
+      archiveList.innerHTML = '<li class="archive-empty">暂无文章</li>';
+    } else {
+      archiveList.innerHTML = postsData.map(p => `
+        <li class="archive-item" data-id="${p.id}" onclick="router.navigate('post', '${p.id}')">
+          <div class="archive-date">${formatDateShort(p.createdAt)}</div>
+          <div class="archive-item-title">${escapeHtml(p.title || '无标题')}</div>
+        </li>
+      `).join('');
+    }
   }
 
-  archiveList.innerHTML = postsData.map(p => `
-    <li class="archive-item" data-id="${p.id}" onclick="router.navigate('post', '${p.id}')">
-      <div class="archive-date">${formatDateShort(p.createdAt)}</div>
-      <div class="archive-item-title">${escapeHtml(p.title || '无标题')}</div>
-    </li>
+  // 手机端文章下拉
+  renderMobileArchive();
+}
+
+function renderMobileArchive() {
+  const ma = document.getElementById('mobile-archive');
+  if (!ma) return;
+  if (postsData.length === 0) {
+    ma.innerHTML = '<div style="font-size:13px;color:var(--text-muted);padding:8px 0;">暂无文章</div>';
+    return;
+  }
+  const catEmoji = { travel: '🗺', patch: '📌', thought: '💭', reading: '📖', life: '📝' };
+  ma.innerHTML = postsData.map(p => `
+    <div class="ma-item" onclick="router.navigate('post','${p.id}');closeMobileArchive();">
+      <span class="ma-date">${formatDateShort(p.createdAt)}</span>
+      <span class="ma-title">${escapeHtml(p.title || '无标题')}</span>
+      <span class="ma-cat">${catEmoji[p.category] || '📝'}</span>
+    </div>
   `).join('');
+}
+
+function toggleMobileArchive() {
+  const ma = document.getElementById('mobile-archive');
+  if (!ma) return;
+  ma.classList.toggle('open');
+  const btn = document.getElementById('mtb-archive-btn');
+  if (btn) btn.textContent = ma.classList.contains('open') ? '✕' : '☰';
+}
+
+function closeMobileArchive() {
+  const ma = document.getElementById('mobile-archive');
+  if (ma) ma.classList.remove('open');
+  const btn = document.getElementById('mtb-archive-btn');
+  if (btn) btn.textContent = '☰';
 }
 
 function setArchiveActive(id) {
@@ -734,13 +819,7 @@ const router = {
     window.scrollTo(0, 0);
     if (view === 'post') setArchiveActive(param);
     else setArchiveActive(null);
-
-    // 手机端：只在首页显示文章档案列表
-    const archiveList = document.getElementById('archive-list');
-    if (archiveList) {
-      if (view === 'portal') archiveList.classList.remove('mobile-hidden');
-      else archiveList.classList.add('mobile-hidden');
-    }
+    closeMobileArchive();
   },
 
   back() {
