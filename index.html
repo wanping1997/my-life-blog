@@ -833,8 +833,7 @@ const router = {
   },
 
   goHome() {
-    // 确保封面不会重现
-    sessionStorage.setItem('cover_entered', '1');
+    // 隐藏封面（但不改变 session 状态，只有封面点击才设置）
     document.getElementById('cover').classList.add('hidden');
     this.navigate('portal');
   }
@@ -956,7 +955,8 @@ async function init() {
   await Promise.all([loadPosts(), loadProfile()]);
   initCover();
   renderSidebar();
-  router.goHome();
+  // 初始加载用 navigate，不触发 goHome（避免影响封面）
+  router.navigate('portal');
 }
 
 init();
