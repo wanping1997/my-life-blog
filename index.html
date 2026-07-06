@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>生活记录</title>
-<link rel="preload" href="avatar.jpg" as="image">
+<link rel="preload" href="avatar.webp" as="image" type="image/webp">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -610,6 +610,17 @@ function escapeAttr(str) {
   return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
+function avatarHTML(avatar, extraAttrs = '') {
+  if (!avatar) return '<div class="avatar-placeholder">👤</div>';
+  // base64 头像直接渲染
+  if (avatar.startsWith('data:')) {
+    return `<img src="${escapeAttr(avatar)}" alt="头像" ${extraAttrs}>`;
+  }
+  // 文件头像用 WebP + JPEG 回退
+  const webp = avatar.replace(/\.(jpg|jpeg|png)$/i, '.webp');
+  return `<picture><source srcset="${escapeAttr(webp)}" type="image/webp"><img src="${escapeAttr(avatar)}" alt="头像" ${extraAttrs}></picture>`;
+}
+
 function formatContent(text) {
   let html = escapeHtml(text);
   // 图片 - 新格式：文件上传 {{img-file:filename.jpg}}
@@ -639,9 +650,7 @@ function renderSidebar() {
   const avatarContainer = document.getElementById('avatar-display');
   const avatar = profileData.avatar || '';
   if (avatarContainer) {
-    avatarContainer.innerHTML = avatar
-      ? `<img src="${escapeAttr(avatar)}" alt="头像" fetchpriority="high" loading="eager" decoding="sync">`
-      : '<div class="avatar-placeholder">👤</div>';
+    avatarContainer.innerHTML = avatarHTML(avatar, 'fetchpriority="high" loading="eager" decoding="sync"');
   }
 
   // 昵称 & 简介 (桌面端)
@@ -653,9 +662,7 @@ function renderSidebar() {
   // 手机端顶部栏
   const mtbAvatar = document.getElementById('mtb-avatar-display');
   if (mtbAvatar) {
-    mtbAvatar.innerHTML = avatar
-      ? `<img src="${escapeAttr(avatar)}" alt="头像">`
-      : '<div class="avatar-placeholder">👤</div>';
+    mtbAvatar.innerHTML = avatarHTML(avatar);
   }
   const mtbName = document.getElementById('mtb-name');
   if (mtbName) mtbName.textContent = profileData.name || '未命名';
@@ -938,9 +945,7 @@ function initCover() {
   }
 
   const avatar = profileData.avatar || '';
-  document.getElementById('cover-avatar-display').innerHTML = avatar
-    ? `<img src="${escapeAttr(avatar)}" alt="头像">`
-    : '<div class="avatar-placeholder">👤</div>';
+  document.getElementById('cover-avatar-display').innerHTML = avatarHTML(avatar);
   document.getElementById('cover-name').textContent = profileData.name || '未命名';
   document.getElementById('cover-bio').textContent = profileData.bio || '';
 

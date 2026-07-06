@@ -63,7 +63,7 @@ function serveFile(req, res) {
   stream.pipe(res);
 }
 
-function saveFiles(posts, profile) {
+async function saveFiles(posts, profile) {
   if (posts) {
     fs.writeFileSync(path.join(ROOT, 'posts.json'), JSON.stringify(posts, null, 2));
     console.log('[保存] posts.json');
@@ -76,9 +76,21 @@ function saveFiles(posts, profile) {
       if (match) {
         const ext = match[1] === 'jpeg' ? 'jpg' : match[1];
         const buf = Buffer.from(match[2], 'base64');
-        fs.writeFileSync(path.join(ROOT, 'avatar.' + ext), buf);
+        const avatarPath = path.join(ROOT, 'avatar.' + ext);
+        fs.writeFileSync(avatarPath, buf);
         profile.avatar = 'avatar.' + ext;
         console.log('[保存] avatar.' + ext + ' (' + (buf.length / 1024).toFixed(0) + 'KB)');
+        // 同时生成 WebP 版本
+        try {
+          const webpPath = path.join(ROOT, 'avatar.webp');
+          await sharp(avatarPath)
+            .resize(200, 200, { fit: 'cover' })
+            .webp({ quality: 70 })
+            .toFile(webpPath);
+          console.log('[WebP] avatar.webp');
+        } catch(e) {
+          console.error('[WebP] avatar 生成失败:', e.message);
+        }
       }
     }
     fs.writeFileSync(path.join(ROOT, 'profile.json'), JSON.stringify(profile, null, 2));
@@ -383,7 +395,7 @@ const server = http.createServer(async (req, res) => {
     const data = await readBody(req);
     if (!data) return json(res, 400, { ok: false, msg: '数据格式错误' });
     try {
-      saveFiles(data.posts, data.profile);
+      await saveFiles(data.posts, data.profile);
       json(res, 200, { ok: true, msg: '文件已保存' });
     } catch (e) {
       json(res, 500, { ok: false, msg: e.message });
@@ -396,7 +408,7 @@ const server = http.createServer(async (req, res) => {
     const data = await readBody(req);
     if (!data) return json(res, 400, { ok: false, msg: '数据格式错误' });
     try {
-      saveFiles(data.posts, data.profile);
+      await saveFiles(data.posts, data.profile);
     } catch (e) {
       return json(res, 500, { ok: false, msg: '保存失败: ' + e.message });
     }
