@@ -201,7 +201,7 @@ let plans = [];
 
 async function loadPlans() {
   try {
-    const res = await fetch('travel-plans.json');
+    const res = await fetch('travel-plans.json?v=3');
     if (res.ok) plans = await res.json();
   } catch(e) { plans = []; }
 }
