@@ -34,16 +34,17 @@
     "id": "xinjiang-2026",
     "title": "乌鲁木齐+伊宁+赛里木湖",
     "subtitle": "郑州飞乌鲁木齐，夏塔+独库+伊昭，伊宁出",
-    "route": "乌鲁木齐 → S101 → 安集海大峡谷 → 独库公路北段 → 唐布拉 → 那拉提 → 特克斯 → 夏塔★ → 伊昭公路 → 果子沟大桥 → 赛里木湖 → 伊宁",
+    "route": "乌鲁木齐 → S101 → 安集海大峡谷 → 独库公路北段 → 唐布拉 → 那拉提✦ → 特克斯 → 夏塔✦ → 伊昭公路 → 果子沟大桥 → 赛里木湖★ → 伊宁",
     "dates": "2026年8月（备选方案）",
     "days": 9,
     "distance": "~1700km",
     "maxAltitude": "3390m",
-    "highlight": "夏塔",
+    "highlight": "赛里木湖",
     "type": "自驾",
     "mapFile": "travel-map-xj.html",
     "color": "#ffffff",
-    "description": "D0 武汉→郑州，D1 郑州飞乌鲁木齐。沿 S101 国防公路赏百里丹霞，在安集海大峡谷感受地球褶皱，独库公路北段翻哈希勒根达坂，穿越唐布拉百里画廊。\n\n那拉提草原 D4 全天深度游（2天1夜住景区内），之后经八卦城特克斯深入夏塔古道——天山深处的冰川与花海，木扎尔特冰川触手可及。沿伊昭公路穿越天山支脉，在赛里木湖环湖看日落星空，最后在伊宁的蓝色巷子里喝完最后一杯冰淇淋。\n\n伊宁飞回武汉，全程单向不走回头路。夏塔+那拉提+赛湖，三个新疆最美的 IP 一次覆盖。"
+    "description": "D0 武汉→郑州，D1 郑州飞乌鲁木齐。沿 S101 国防公路赏百里丹霞，在安集海大峡谷感受地球褶皱，独库公路北段翻哈希勒根达坂，穿越唐布拉百里画廊。\n\n那拉提草原 D4 全天深度游（2天1夜住景区内），之后经八卦城特克斯深入夏塔古道——天山深处的冰川与花海。沿伊昭公路穿越天山支脉，在赛里木湖环湖看日落星空，最后在伊宁的蓝色巷子里喝完最后一杯冰淇淋。\n\n伊宁飞回武汉，全程单向不走回头路。赛里木湖+那拉提+夏塔，三个新疆最美的 IP 一次覆盖。",
+    "itinerary": "<table class='itin-table'><thead><tr><th>日程</th><th>交通</th><th>内容</th><th>住宿</th><th>备注</th></tr></thead><tbody><tr><td class='itin-day'>D0</td><td>🚗/🚄 武汉 → 郑州</td><td>—</td><td>郑州</td><td>早休息，赶明早航班</td></tr><tr><td class='itin-day'>D1</td><td>✈️ 郑州 → 乌鲁木齐</td><td>乌鲁木齐漫游、取车</td><td>乌鲁木齐</td><td>检查车况、倒时差</td></tr><tr><td class='itin-day'>D2</td><td>🚗 乌鲁木齐 → 独山子<br><span class='itin-sub'>S101 · 安集海大峡谷</span></td><td>S101、丹霞、水库、峡谷</td><td>独山子（备选奎屯）</td><td>早休息</td></tr><tr><td class='itin-day'>D3</td><td>🚗 独山子 → 那拉提<br><span class='itin-sub'>独库北段 · 唐布拉百里画廊</span></td><td>河谷、草甸、雪山、牧场、牛羊</td><td>那拉提镇</td><td>⚠️ 早出发</td></tr><tr class='itin-highlight'><td class='itin-day'>D4 ⭐</td><td>🚗 景区内</td><td>那拉提草原深度游（2天1夜）</td><td>景区内（备选镇）</td><td>⚠️ 预约自驾票+住宿</td></tr><tr><td class='itin-day'>D5</td><td>🚗 那拉提 → 特克斯</td><td>那拉提清晨 + 特克斯漫游</td><td>特克斯</td><td>早起避开高峰</td></tr><tr><td class='itin-day'>D6</td><td>🚗 特克斯 → 夏塔<br><span class='itin-sub'>备选：恰西、琼库什台、喀拉峻</span></td><td>夏塔古道深度游</td><td>夏塔景区内（备选昭苏）</td><td>⚠️ 提前预约住宿</td></tr><tr class='itin-highlight'><td class='itin-day'>D7</td><td>🚗 夏塔 → 赛里木湖<br><span class='itin-sub'>伊昭公路</span></td><td>伊昭公路 + 赛湖环湖日落</td><td>赛里木湖</td><td>⚠️ 提前预约住宿</td></tr><tr><td class='itin-day'>D8</td><td>🚗 赛湖 → 伊宁</td><td>赛湖清晨 + 伊宁漫游</td><td>伊宁</td><td>错开高峰</td></tr><tr><td class='itin-day'>D9</td><td>✈️ 伊宁 → 武汉</td><td>—</td><td>—</td><td>⚠️ 别误机</td></tr></tbody></table>"
   },
   {
     "id": "sanjin-2026",
