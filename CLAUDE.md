@@ -1,7 +1,7 @@
 # 我的博客项目
 
 ## 公网地址
-https://fabulous-cranachan-29a6c2.netlify.app
+https://wanping1997.github.io/my-life-blog/
 
 ## 项目结构
 - `index.html` - 公开博客页面（只读）
@@ -17,7 +17,8 @@ https://fabulous-cranachan-29a6c2.netlify.app
 3. 点左侧「发布」按钮即可更新公网
 
 ## 技术说明
-- 纯静态网站，部署在 Netlify
+- 纯静态网站，部署在 GitHub Pages
 - 文章和个人信息存储在 JSON 文件中
 - 图片以 base64 格式嵌入文章内容
-- 本地服务器运行在 localhost:3456，负责保存文件和调用 Netlify 部署
+- 本地服务器运行在 localhost:3456，负责保存文件和部署
+- 部署方式：启动编辑器后点「发布」，或直接 push 到 GitHub
