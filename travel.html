@@ -50,7 +50,7 @@
 
   .page {
     max-width: 960px; margin: 0 auto; padding: 48px 24px 120px;
-    min-height: calc(100vh - 56px);
+    min-height: calc(100vh - 56px); min-width: 0;
   }
 
   .page-header { text-align: center; margin-bottom: 56px; }
@@ -123,6 +123,10 @@
   .detail-desc { font-size: 15px; color: #c4c0bb; line-height: 2; margin-bottom: 36px; }
   .detail-desc p { margin-bottom: 1em; }
 
+  .itin-wrap {
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+    margin-bottom: 24px;
+  }
   .itin-table {
     width: 100%; border-collapse: collapse;
     font-size: 14px; line-height: 1.6; margin-bottom: 36px;
@@ -280,7 +284,7 @@ function renderDetail(id) {
     <div class="detail-desc">
       ${p.description.split('\n').filter(Boolean).map(line => `<p>${esc(line)}</p>`).join('')}
     </div>
-    ${p.itinerary ? p.itinerary : ''}
+    ${p.itinerary ? '<div class="itin-wrap">' + p.itinerary + '</div>' : ''}
     <div class="detail-actions">
       <a href="${p.mapFile}" class="btn btn-primary" target="_blank">🗺️ 打开路线图</a>
       <a class="btn btn-outline" onclick="showList()">← 返回列表</a>
