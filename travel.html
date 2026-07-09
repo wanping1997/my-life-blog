@@ -200,12 +200,13 @@
 let plans = [];
 
 async function loadPlans() {
-  for (let i = 0; i < 3; i++) {
+  const delays = [500, 1500, 3000, 5000];
+  for (let i = 0; i <= delays.length; i++) {
     try {
       const res = await fetch('travel-plans.json?v=3');
       if (res.ok) { plans = await res.json(); return; }
     } catch(e) {}
-    await new Promise(r => setTimeout(r, 800));
+    if (i < delays.length) await new Promise(r => setTimeout(r, delays[i]));
   }
   plans = [];
 }
