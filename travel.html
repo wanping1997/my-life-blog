@@ -200,10 +200,14 @@
 let plans = [];
 
 async function loadPlans() {
-  try {
-    const res = await fetch('travel-plans.json?v=3');
-    if (res.ok) plans = await res.json();
-  } catch(e) { plans = []; }
+  for (let i = 0; i < 3; i++) {
+    try {
+      const res = await fetch('travel-plans.json?v=3');
+      if (res.ok) { plans = await res.json(); return; }
+    } catch(e) {}
+    await new Promise(r => setTimeout(r, 800));
+  }
+  plans = [];
 }
 
 function esc(s) {

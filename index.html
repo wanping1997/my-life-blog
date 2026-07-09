@@ -532,10 +532,13 @@ let postsData = [];
 let profileData = { name: '未命名', bio: '写一句简介…', avatar: '' };
 
 async function loadJSON(file) {
-  try {
-    const res = await fetch(file);
-    if (res.ok) return await res.json();
-  } catch(e) { /* 本地打开文件会失败 */ }
+  for (let i = 0; i < 3; i++) {
+    try {
+      const res = await fetch(file);
+      if (res.ok) return await res.json();
+    } catch(e) { /* 本地打开文件会失败 */ }
+    await new Promise(r => setTimeout(r, 800));
+  }
   return null;
 }
 
