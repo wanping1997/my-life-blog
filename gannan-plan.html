@@ -194,7 +194,9 @@ setTimeout(() => {
   }
 }, 1200);
 
+let _pc, _pz;
 function printMap() {
+  _pc = map.getCenter(); _pz = map.getZoom();
   map.dragging.disable();
   map.touchZoom.disable();
   map.scrollWheelZoom.disable();
@@ -211,6 +213,10 @@ function doPrint() {
   map.dragging.enable();
   map.touchZoom.enable();
   map.scrollWheelZoom.enable();
+}
+window.addEventListener('beforeprint', function() {
+  if (_pc) { map.invalidateSize(); map.setView(_pc, _pz); }
+});
 }
 
 const s = document.createElement('style');

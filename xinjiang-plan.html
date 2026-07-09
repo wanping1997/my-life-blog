@@ -260,29 +260,30 @@ setTimeout(() => {
   }
 }, 1200);
 
-// 打印功能：锁定当前视图，等瓦片加载完后打印
+// 打印功能：记录当前视图，打印前锁定并恢复
+let _pc, _pz;
 function printMap() {
+  _pc = map.getCenter(); _pz = map.getZoom();
   map.dragging.disable();
   map.touchZoom.disable();
   map.scrollWheelZoom.disable();
-
   const tiles = document.querySelectorAll('#map .leaflet-tile');
   let loaded = 0;
   tiles.forEach(t => {
     if (t.complete) { loaded++; return; }
     t.addEventListener('load', () => { loaded++; if (loaded >= tiles.length) doPrint(); });
   });
-  if (loaded >= tiles.length) {
-    setTimeout(doPrint, 500);
-  }
+  if (loaded >= tiles.length) { setTimeout(doPrint, 500); }
 }
-
 function doPrint() {
   window.print();
   map.dragging.enable();
   map.touchZoom.enable();
   map.scrollWheelZoom.enable();
 }
+window.addEventListener('beforeprint', function() {
+  if (_pc) { map.invalidateSize(); map.setView(_pc, _pz); }
+});
 </script>
 </body>
 </html>
