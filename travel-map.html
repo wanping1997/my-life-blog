@@ -80,6 +80,7 @@ body { font-family: -apple-system, "Microsoft YaHei", sans-serif; background:#17
   <div class="day"><span class="dot" style="background:#fff; border:2px solid #4A90D9"></span> ● 住宿过夜</div>
   <div class="day"><span class="dot" style="background:#aaa"></span> ○ 途经/游览</div>
   <div class="day"><span class="dot" style="background:#E74C3C"></span> ★ 莲宝叶则（核心）</div>
+  <div class="day"><span class="dot" style="background:#F39C12"></span> ✦ 拉卜楞寺 · 扎尕那</div>
   <div class="day"><span class="dot" style="background:#ccc; border:1px dashed #999"></span> ◇ 备选落脚点</div></div></div>
 
 <div class="info-panel" onclick="this.classList.toggle('collapsed')"><span class="ip-text">总驾驶 ≈ <span>1550 km</span><br>最高海拔 <span>4520 m</span><br>点击标记查看详情</span></div>
@@ -111,6 +112,7 @@ const C = {
   overnight:'#ffffff',
   passthru: '#aaaaaa',
   highlight:'#E74C3C',
+  sub:      '#F39C12',
   alt:      '#cccccc',
 };
 
@@ -194,6 +196,15 @@ function highlight(lat,lng, label, popup) {
   if(popup) m.bindPopup(popup);
   return m;
 }
+function subHighlight(lat,lng, label, popup) {
+  const m = L.circleMarker([lat,lng], {
+    radius:8, fillColor:C.sub, fillOpacity:0.85, color:'#fff', weight:2
+  }).addTo(map);
+  m.bindTooltip(`<b>✦ ${label}</b>`, {permanent:true, direction:'top', offset:[0,-12],
+    className:'tl-subhighlight'});
+  if(popup) m.bindPopup(popup);
+  return m;
+}
 function alternate(lat,lng, label) {
   const m = L.circleMarker([lat,lng], {
     radius:6, fillColor:'transparent', fillOpacity:0, color:C.alt, weight:1.8, dashArray:'3 3'
@@ -225,16 +236,16 @@ overnight(36.0611, 103.8343, '兰州', 1,
 // D2: 兰州 → 夏河
 passthru(35.15, 102.45, '桑科草原',
   '<b>🌾 桑科草原</b><br>D2 途经，8月最绿<br>骑马 ¥50-80');
-overnight(35.2025, 102.5217, '夏河', 2,
-  '<b>🏠 夏河</b> — D2 住宿<br>拉卜楞寺 · 世界最长转经长廊<br>🕐 游览 2.5-3h · 门票 ¥40<br>🔀 可选：甘加秘境');
+subHighlight(35.2025, 102.5217, '夏河·拉卜楞寺',
+  '<b>✦ 夏河·拉卜楞寺</b> — D2 住宿<br>世界最长转经长廊<br>🕐 游览 2.5-3h · 门票 ¥40<br>🔀 可选：甘加秘境');
 
 // D3: 夏河 → 郎木寺 → 扎尕那
 passthru(34.24, 102.35, '尕海湖',
   '<b>🪷 尕海湖</b><br>D3 途经湿地<br>候鸟栖息地');
 passthru(34.0889, 102.6378, '郎木寺',
   '<b>🏛️ 郎木寺</b><br>D3 午餐+快速游览 1-1.5h<br>赛赤寺 · 天葬台（远观）<br>门票 ¥30');
-overnight(34.2333, 103.2000, '扎尕那', 3,
-  '<b>🏠 扎尕那</b> — D3 住宿<br>东方伊甸园 · 石头山仙境<br>达日观景台看日落<br>门票 ¥80');
+subHighlight(34.2333, 103.2000, '扎尕那',
+  '<b>✦ 扎尕那</b> — D3 住宿<br>东方伊甸园 · 石头山仙境<br>达日观景台看日落<br>门票 ¥80');
 
 // D4: 扎尕那 → 若尔盖 → 红原
 passthru(33.92, 102.82, '花湖',
@@ -290,6 +301,11 @@ style.textContent = `
     background:rgba(180,20,20,0.9); color:#fff; border:2px solid #ff6b6b;
     border-radius:6px; padding:3px 10px; font-size:14px; white-space:nowrap;
     box-shadow:0 2px 12px rgba(255,0,0,0.3);
+  }
+  .tl-subhighlight {
+    background:rgba(180,120,20,0.9); color:#fff; border:2px solid #f0c040;
+    border-radius:5px; padding:2px 8px; font-size:12px; white-space:nowrap;
+    box-shadow:0 2px 10px rgba(200,150,20,0.3);
   }
   .tl-alt {
     background:rgba(30,30,50,0.8); color:#aaa; border:1px dashed #888;

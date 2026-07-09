@@ -86,6 +86,7 @@ body { font-family: "PingFang SC","Microsoft YaHei",sans-serif; background:#fff;
       <div class="day"><span class="line" style="background:#F39C12"></span> D8 理县→汶川→成都</div>
       <div class="day"><span class="dot" style="background:#fff;border:2px solid #4A90D9"></span> ● 住宿</div>
       <div class="day"><span class="dot" style="background:#E74C3C"></span> ★ 莲宝叶则（核心）</div>
+      <div class="day"><span class="dot" style="background:#F39C12"></span> ✦ 拉卜楞寺 · 扎尕那</div>
       <div class="day"><span class="dot" style="background:#ccc;border:1px dashed #999"></span> ◇ 备选</div>
     </div>
   </div>
@@ -119,7 +120,7 @@ L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scal
 const C = {
   flight:'#888', d2:'#4A90D9', d3:'#7B68EE', d4:'#E8913A', d5:'#27AE60',
   d6:'#E74C3C', d7:'#2980B9', d8:'#F39C12',
-  overnight:'#fff', passthru:'#aaa', highlight:'#E74C3C', alt:'#ccc',
+  overnight:'#fff', passthru:'#aaa', highlight:'#E74C3C', sub:'#F39C12', alt:'#ccc',
 };
 
 function addRoute(c, color, w=3.5, dash=null) {
@@ -153,6 +154,11 @@ function hl(ll, label, popup) {
   m.bindTooltip(`<b>⭐ ${label}</b>`, {permanent:true,direction:'top',offset:[0,-14],className:'tl-h'});
   if(popup) m.bindPopup(popup);
 }
+function sh(ll, label, popup) {
+  const m = L.circleMarker(ll, {radius:8,fillColor:C.sub,fillOpacity:0.85,color:'#fff',weight:2}).addTo(map);
+  m.bindTooltip(`<b>✦ ${label}</b>`, {permanent:true,direction:'top',offset:[0,-12],className:'tl-sh'});
+  if(popup) m.bindPopup(popup);
+}
 function alt(ll, label, popup) {
   const m = L.circleMarker(ll, {radius:6,fillColor:'transparent',fillOpacity:0,color:C.alt,weight:1.8,dashArray:'3 3'}).addTo(map);
   m.bindTooltip(`◇ ${label}`, {permanent:true,direction:'left',offset:[-8,0],className:'tl-alt'});
@@ -167,10 +173,10 @@ function fp(ll, label, popup) {
 fp([30.5928,114.3055], '武汉', '<b>武汉</b><br>✈ 出发→兰州<br>✈ 成都→返回');
 overnight([36.0611,103.8343], '兰州', '<b>🏠 兰州</b> — D1<br>取车 · 中山桥 · 正宁路夜市');
 passthru([35.15,102.45], '桑科草原', '<b>🌾 桑科草原</b><br>D2 途经');
-overnight([35.2025,102.5217], '夏河', '<b>🏠 夏河</b> — D2<br>拉卜楞寺 · 转经长廊');
+sh([35.2025,102.5217], '夏河·拉卜楞寺', '<b>✦ 夏河·拉卜楞寺</b> — D2<br>世界最长转经长廊');
 passthru([34.24,102.35], '尕海湖', '<b>🪷 尕海湖</b><br>D3 途经');
 passthru([34.0889,102.6378], '郎木寺', '<b>🏛️ 郎木寺</b><br>D3 午餐+快速游览');
-overnight([34.2333,103.2], '扎尕那', '<b>🏠 扎尕那</b> — D3<br>东方伊甸园 · 日落');
+sh([34.2333,103.2], '扎尕那', '<b>✦ 扎尕那</b> — D3<br>东方伊甸园 · 日落');
 passthru([33.92,102.82], '花湖', '<b>🌸 花湖</b><br>D4 途经');
 passthru([33.575,102.9636], '若尔盖', '<b>🌾 若尔盖草原</b><br>D4 穿行');
 overnight([32.7936,102.5444], '红原', '<b>🏠 红原</b> — D4<br>红原大草原 · 月亮湾');
@@ -217,6 +223,7 @@ s.textContent = `
 .tl-o{background:rgba(20,20,40,0.9);color:#fff;border:1px solid #4A90D9;border-radius:6px;padding:2px 8px;font-size:13px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.4);}
 .tl-p{background:rgba(30,30,50,0.85);color:#ccc;border:1px solid #555;border-radius:5px;padding:1px 7px;font-size:11px;white-space:nowrap;}
 .tl-h{background:rgba(180,20,20,0.9);color:#fff;border:2px solid #ff6b6b;border-radius:6px;padding:3px 10px;font-size:14px;white-space:nowrap;box-shadow:0 2px 12px rgba(255,0,0,0.3);}
+.tl-sh{background:rgba(180,120,20,0.9);color:#fff;border:2px solid #f0c040;border-radius:5px;padding:2px 8px;font-size:12px;white-space:nowrap;box-shadow:0 2px 10px rgba(200,150,20,0.3);}
 .tl-alt{background:rgba(30,30,50,0.8);color:#aaa;border:1px dashed #888;border-radius:4px;padding:1px 6px;font-size:10px;white-space:nowrap;}
 .tl-fp{background:rgba(30,30,50,0.8);color:#bbb;border:1px dashed #777;border-radius:4px;padding:1px 6px;font-size:10px;white-space:nowrap;}
 .leaflet-popup-content{font-family:"Microsoft YaHei",sans-serif;font-size:13px;line-height:1.6;}
