@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>甘南川西 9日自驾 · 甘南+阿坝+成都</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+@page { size: A4; margin: 0; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: "PingFang SC","Microsoft YaHei",sans-serif; background:#fff; color:#1a1a1a; }
+.page { max-width:1100px; margin:0 auto; padding:40px 48px; }
+
+.header { text-align:center; margin-bottom:40px; }
+.header h1 { font-size:32px; font-weight:700; letter-spacing:2px; margin-bottom:8px; }
+.header .subtitle { font-size:15px; color:#666; }
+
+.poem { text-align:center; margin:32px 0 40px; padding:28px 0; border-top:1px solid #e0e0e0; border-bottom:1px solid #e0e0e0; }
+.poem p { font-size:17px; line-height:2.2; color:#444; letter-spacing:1px; }
+
+.route-overview { background:#f8f8f8; border-radius:8px; padding:24px 28px; margin-bottom:36px; font-size:15px; line-height:1.9; color:#333; border-left:4px solid #c0392b; }
+
+.section-title { font-size:20px; font-weight:600; margin:36px 0 16px; padding-bottom:8px; border-bottom:2px solid #e0e0e0; letter-spacing:1px; }
+
+.itin-table { width:100%; border-collapse:collapse; font-size:14px; margin-bottom:36px; }
+.itin-table thead { border-bottom:2px solid #555; }
+.itin-table th { padding:10px 12px; text-align:left; font-weight:600; font-size:13px; color:#555; letter-spacing:1px; }
+.itin-table td { padding:10px 12px; border-bottom:1px solid #eee; vertical-align:top; line-height:1.7; }
+.itin-table tr:nth-child(even) td { background:#fafafa; }
+.itin-table .itin-day { font-weight:600; white-space:nowrap; }
+.itin-table .itin-sub { font-size:12px; color:#888; display:block; }
+.itin-highlight td { background:#fff8f0 !important; border-left:3px solid #e8913a; }
+.itin-highlight .itin-day { color:#d4740a; }
+
+.map-wrapper { border:2px solid #e0e0e0; border-radius:8px; overflow:hidden; margin-bottom:36px; position:relative; }
+#map { height:520px; width:100%; }
+.map-legend { position:absolute; bottom:16px; right:16px; z-index:1000; background:rgba(255,255,255,0.92); padding:12px 16px; border-radius:8px; font-size:12px; line-height:2; border:1px solid #ddd; box-shadow:0 2px 8px rgba(0,0,0,0.08); }
+.map-legend h4 { font-size:13px; margin-bottom:4px; }
+.map-legend .day { display:flex; align-items:center; gap:6px; }
+.map-legend .line { width:18px; height:2px; flex-shrink:0; border-radius:1px; }
+.map-legend .dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.map-legend .dash { width:18px; height:0; flex-shrink:0; border-top:2px dashed #888; }
+.map-info { position:absolute; bottom:16px; left:16px; z-index:1000; background:rgba(255,255,255,0.9); padding:8px 12px; border-radius:6px; font-size:11px; color:#666; border:1px solid #ddd; }
+.map-info span { font-weight:700; color:#c0392b; }
+
+.footer { text-align:center; font-size:12px; color:#aaa; margin-top:32px; padding-top:16px; border-top:1px solid #eee; }
+
+@media print { body { -webkit-print-color-adjust:exact; print-color-adjust:exact; } .page { padding:20px 32px; } #map { height:450px; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <h1>🏔️ 甘南+阿坝+成都</h1>
+    <div class="subtitle">2026年8月1日—9日 · 9日自驾 · 兰州进，成都出，不走回头路</div>
+  </div>
+
+  <div class="poem">
+    <p>黄河九曲入苍苍，梵音低回伴斜阳。</p>
+    <p>红衣随风穿草野，经幡猎猎过寒冈。</p>
+    <p>云作海，岩为裳，群峰如剑指八荒。</p>
+    <p>少年此去千山外，不负人间月与霜。</p>
+  </div>
+
+  <div class="route-overview">
+    <strong>路线：</strong>兰州 → 夏河（拉卜楞寺）→ 桑科草原 → 郎木寺 → 扎尕那 → 若尔盖草原 → 红原 → 达格则 → 阿坝 → 莲宝叶则★ → 各莫寺 → 马尔康 → 理县 → 汶川 → 成都<br>
+    <strong>总驾驶：</strong>约 1,550 km &nbsp;|&nbsp; 最高海拔 4,520 m &nbsp;|&nbsp; 核心：莲宝叶则★
+  </div>
+
+  <div class="section-title">📋 行程总表</div>
+  <table class="itin-table">
+    <thead><tr><th>日程</th><th>交通</th><th>内容</th><th>住宿</th><th>备注</th></tr></thead>
+    <tbody>
+      <tr><td class="itin-day">D1</td><td>✈ 武汉→兰州</td><td>租车；兰州漫游；整备物资</td><td>兰州</td><td>计划周六上午飞中午到；检查车况；备点药；能星期五晚到更好</td></tr>
+      <tr><td class="itin-day">D2</td><td>🚗 兰州→夏河（3−4h）<span class="itin-sub">拉卜楞寺</span></td><td>拉卜楞寺</td><td>夏河</td><td>10:00前出发；拉卜楞寺开放至18点</td></tr>
+      <tr><td class="itin-day">D3</td><td>🚗 夏河→郎木寺镇（3−4h）<span class="itin-sub">郎木寺→扎尕那（2−3h）</span></td><td>扎尕那</td><td>扎尕那</td><td>9:30前出发；时间充足可浅逛郎木寺</td></tr>
+      <tr><td class="itin-day">D4</td><td>🚗 扎尕那→若尔盖（3h）<span class="itin-sub">若尔盖→红原 G248（2.5h）</span></td><td>扎尕那清晨<br>草原；湿地；牧场</td><td>红原</td><td>注意离开扎尕那时间，尽量避免堵车</td></tr>
+      <tr><td class="itin-day">D5</td><td>🚗 红原→达格则<span class="itin-sub">达格则寺+达格则风景区</span><span class="itin-sub">经江茸乡→阿坝</span></td><td>达格则<br>沿途风景</td><td>阿坝县</td><td>江茸乡解决午饭（条件有限）；机动性较高，视天气决定达格则逗留时长</td></tr>
+      <tr class="itin-highlight"><td class="itin-day">D6 ⭐</td><td>🚗 阿坝→莲宝叶则（1h）<span class="itin-sub">莲宝叶则→各莫寺→阿坝</span></td><td>莲宝叶则（5−6h）<br>各莫寺</td><td>阿坝县</td><td>6:30出发；早起早起早起；高海拔；自备午餐；如下午各莫寺来不及可移至 D7 上午</td></tr>
+      <tr><td class="itin-day">D7</td><td>🚗 阿坝→马尔康（3.5−4.5h）<span class="itin-sub">马尔康→理县（G317 风景好 3−4h / 高速 2h）</span></td><td>赶路的一天<br>沿途藏羌风情</td><td>理县</td><td>休息好再出发（11:00）；注意天气预报和交通路况</td></tr>
+      <tr><td class="itin-day">D8</td><td>🚗 理县→汶川（1.5h）<span class="itin-sub">汶川→成都</span></td><td>海拔回落<br>回归城市；放松</td><td>成都</td><td>不搞基</td></tr>
+      <tr><td class="itin-day">D9</td><td>✈ 成都→武汉</td><td>休息+成都漫游<br>还车</td><td>/</td><td>下午或晚上飞；检查车况</td></tr>
+    </tbody>
+  </table>
+
+  <div class="section-title">🗺️ 路线图</div>
+  <div class="map-wrapper">
+    <div id="map"></div>
+    <div class="map-info">总驾驶 ≈ <span>1,550 km</span> &nbsp;|&nbsp; 最高海拔 <span>4,520 m</span> &nbsp;|&nbsp; 鼠标滚轮缩放</div>
+    <div class="map-legend">
+      <h4>📋 图例</h4>
+      <div class="day"><span class="dash"></span> ✈ 飞行（武汉↔兰州/成都）</div>
+      <div class="day"><span class="line" style="background:#4A90D9"></span> D2 兰州→夏河</div>
+      <div class="day"><span class="line" style="background:#7B68EE"></span> D3 夏河→郎木寺→扎尕那</div>
+      <div class="day"><span class="line" style="background:#E8913A"></span> D4 扎尕那→若尔盖→红原</div>
+      <div class="day"><span class="line" style="background:#27AE60"></span> D5 红原→达格则→阿坝</div>
+      <div class="day"><span class="line" style="background:#E74C3C"></span> D6 莲宝叶则（往返+各莫寺）</div>
+      <div class="day"><span class="line" style="background:#2980B9"></span> D7 阿坝→马尔康→理县</div>
+      <div class="day"><span class="line" style="background:#F39C12"></span> D8 理县→汶川→成都</div>
+      <div class="day"><span class="dot" style="background:#fff;border:2px solid #4A90D9"></span> ● 住宿</div>
+      <div class="day"><span class="dot" style="background:#E74C3C"></span> ★ 莲宝叶则（核心）</div>
+      <div class="day"><span class="dot" style="background:#ccc;border:1px dashed #999"></span> ◇ 备选</div>
+    </div>
+  </div>
+
+  <div class="footer">甘南+阿坝+成都 9日自驾方案 · 2026年7月制定</div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const map = L.map('map', { attributionControl:false }).setView([33.5, 103.0], 6);
+L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
+  subdomains: '1234', maxZoom: 18,
+}).addTo(map);
+
+const C = {
+  flight:'#888', d2:'#4A90D9', d3:'#7B68EE', d4:'#E8913A', d5:'#27AE60',
+  d6:'#E74C3C', d7:'#2980B9', d8:'#F39C12',
+  overnight:'#fff', passthru:'#aaa', highlight:'#E74C3C', alt:'#ccc',
+};
+
+function addRoute(c, color, w=3.5, dash=null) {
+  return L.polyline(c, {color, weight:w, opacity:0.85, dashArray:dash, smoothFactor:1}).addTo(map);
+}
+
+const fs = { color:C.flight, weight:1.8, dashArray:'8 6', opacity:0.7 };
+L.polyline([[30.5928,114.3055],[36.0611,103.8343]], fs).addTo(map);
+L.polyline([[30.5728,104.0668],[30.5928,114.3055]], fs).addTo(map);
+
+addRoute([[36.0611,103.8343],[35.8,103.5],[35.6016,103.2067],[35.35,102.8],[35.2025,102.5217]], C.d2);
+addRoute([[35.2025,102.5217],[35.15,102.45],[34.9833,102.9],[34.5,102.7],[34.24,102.35],[34.0889,102.6378],[34.1,102.85],[34.08,103],[34.0567,103.2217],[34.2333,103.2]], C.d3);
+addRoute([[34.2333,103.2],[34,102.95],[33.92,102.82],[33.575,102.9636],[33.2,102.7],[32.7936,102.5444]], C.d4);
+addRoute([[32.7936,102.5444],[32.5,102.3],[32.6,102],[32.902,101.7063]], C.d5);
+addRoute([[32.902,101.7063],[33.1,101.6],[33.3,101.52],[33.1,101.6],[32.95,101.72],[32.902,101.7063]], C.d6, 4.5);
+addRoute([[32.902,101.7063],[32.4,101.9],[31.9058,102.225],[31.7,102.6],[31.4367,103.1667]], C.d7);
+addRoute([[31.4367,103.1667],[31.4763,103.5889],[31.3,103.6],[30.5728,104.0668]], C.d8, 3.5);
+
+function overnight(ll, label, popup) {
+  const m = L.circleMarker(ll, {radius:9,fillColor:C.overnight,fillOpacity:1,color:C.d2,weight:2.5}).addTo(map);
+  m.bindTooltip(`<b>${label}</b>`, {permanent:true,direction:'right',offset:[12,0],className:'tl-o'});
+  if(popup) m.bindPopup(popup);
+}
+function passthru(ll, label, popup) {
+  const m = L.circleMarker(ll, {radius:5.5,fillColor:C.passthru,fillOpacity:0.85,color:'#666',weight:1.5}).addTo(map);
+  m.bindTooltip(label, {permanent:true,direction:'right',offset:[8,0],className:'tl-p'});
+  if(popup) m.bindPopup(popup);
+}
+function hl(ll, label, popup) {
+  const m = L.circleMarker(ll, {radius:10,fillColor:C.highlight,fillOpacity:0.9,color:'#fff',weight:2.5}).addTo(map);
+  m.bindTooltip(`<b>⭐ ${label}</b>`, {permanent:true,direction:'top',offset:[0,-14],className:'tl-h'});
+  if(popup) m.bindPopup(popup);
+}
+function alt(ll, label, popup) {
+  const m = L.circleMarker(ll, {radius:6,fillColor:'transparent',fillOpacity:0,color:C.alt,weight:1.8,dashArray:'3 3'}).addTo(map);
+  m.bindTooltip(`◇ ${label}`, {permanent:true,direction:'left',offset:[-8,0],className:'tl-alt'});
+  if(popup) m.bindPopup(popup);
+}
+function fp(ll, label, popup) {
+  const m = L.circleMarker(ll, {radius:5,fillColor:'#ddd',fillOpacity:0.7,color:'#888',weight:1.2,dashArray:'3 2'}).addTo(map);
+  m.bindTooltip(`✈ ${label}`, {permanent:true,direction:'right',offset:[8,0],className:'tl-fp'});
+  if(popup) m.bindPopup(popup);
+}
+
+fp([30.5928,114.3055], '武汉', '<b>武汉</b><br>✈ 出发→兰州<br>✈ 成都→返回');
+overnight([36.0611,103.8343], '兰州', '<b>🏠 兰州</b> — D1<br>取车 · 中山桥 · 正宁路夜市');
+passthru([35.15,102.45], '桑科草原', '<b>🌾 桑科草原</b><br>D2 途经');
+overnight([35.2025,102.5217], '夏河', '<b>🏠 夏河</b> — D2<br>拉卜楞寺 · 转经长廊');
+passthru([34.24,102.35], '尕海湖', '<b>🪷 尕海湖</b><br>D3 途经');
+passthru([34.0889,102.6378], '郎木寺', '<b>🏛️ 郎木寺</b><br>D3 午餐+快速游览');
+overnight([34.2333,103.2], '扎尕那', '<b>🏠 扎尕那</b> — D3<br>东方伊甸园 · 日落');
+passthru([33.92,102.82], '花湖', '<b>🌸 花湖</b><br>D4 途经');
+passthru([33.575,102.9636], '若尔盖', '<b>🌾 若尔盖草原</b><br>D4 穿行');
+overnight([32.7936,102.5444], '红原', '<b>🏠 红原</b> — D4<br>红原大草原 · 月亮湾');
+passthru([32.5,102.3], '达格则', '<b>🏔️ 达格则</b><br>D5 秘境山谷');
+overnight([32.902,101.7063], '阿坝', '<b>🏠 阿坝</b> — D5+D6 两晚<br>海拔3300m');
+hl([33.3,101.52], '莲宝叶则 — 核心', '<b>⭐ 莲宝叶则 — 全程核心！</b><br>D6 全天 扎尕尔措4200m<br>盘羊坪4423m · 4520观景台');
+passthru([32.95,101.72], '各莫寺', '<b>🛕 各莫寺</b><br>D6 下午 37m强巴佛');
+passthru([31.9058,102.225], '马尔康', '<b>🏘️ 马尔康</b><br>D7 午餐+休息');
+alt([31.4367,103.1667], '理县（备选）', '<b>◇ 理县</b><br>D7 备选落脚 · 古尔沟温泉');
+overnight([31.4367,103.1667], '理县', '<b>🏠 理县</b> — D7<br>古尔沟温泉');
+passthru([31.4763,103.5889], '汶川', '<b>🏙️ 汶川</b><br>D8 途经');
+overnight([30.5728,104.0668], '成都', '<b>🏠 成都</b> — D8<br>宽窄巷子 · 太古里 · 火锅');
+
+// Fit bounds
+setTimeout(() => {
+  const all = [];
+  map.eachLayer(l => { if(l.getLatLng) all.push(l.getLatLng()); });
+  if (all.length) {
+    const g = L.featureGroup(all.map(ll => L.marker(ll)));
+    map.fitBounds(g.getBounds().pad(0.08));
+  }
+}, 1200);
+
+const s = document.createElement('style');
+s.textContent = `
+.tl-o{background:rgba(20,20,40,0.9);color:#fff;border:1px solid #4A90D9;border-radius:6px;padding:2px 8px;font-size:13px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.4);}
+.tl-p{background:rgba(30,30,50,0.85);color:#ccc;border:1px solid #555;border-radius:5px;padding:1px 7px;font-size:11px;white-space:nowrap;}
+.tl-h{background:rgba(180,20,20,0.9);color:#fff;border:2px solid #ff6b6b;border-radius:6px;padding:3px 10px;font-size:14px;white-space:nowrap;box-shadow:0 2px 12px rgba(255,0,0,0.3);}
+.tl-alt{background:rgba(30,30,50,0.8);color:#aaa;border:1px dashed #888;border-radius:4px;padding:1px 6px;font-size:10px;white-space:nowrap;}
+.tl-fp{background:rgba(30,30,50,0.8);color:#bbb;border:1px dashed #777;border-radius:4px;padding:1px 6px;font-size:10px;white-space:nowrap;}
+.leaflet-popup-content{font-family:"Microsoft YaHei",sans-serif;font-size:13px;line-height:1.6;}
+.leaflet-popup-content b{color:#333;}
+`;
+document.head.appendChild(s);
+</script>
+</body>
+</html>
