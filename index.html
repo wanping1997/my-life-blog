@@ -961,14 +961,22 @@ function initCover() {
 
 // ==================== 启动 ====================
 async function init() {
-  await Promise.all([loadPosts(), loadProfile()]);
-  initCover();
+  // 先渲染骨架，不等数据
   renderSidebar();
-  // 初始加载用 navigate，不触发 goHome（避免影响封面）
   router.navigate('portal');
+
+  // 后台加载数据
+  await Promise.all([loadPosts(), loadProfile()]);
+  renderSidebar();
+  initCover();
 }
 
 init();
+
+// 从休眠恢复后自动刷新
+window.addEventListener('pageshow', function(e) {
+  if (e.persisted) { init(); }
+});
 </script>
 
 </body>

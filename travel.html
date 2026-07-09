@@ -297,10 +297,14 @@ function showDetail(id) {
 }
 
 async function init() {
+  showList();  // 先渲染骨架
   await loadPlans();
-  showList();
+  showList();  // 数据到后再更新
 }
 init();
+window.addEventListener('pageshow', function(e) {
+  if (e.persisted) { init(); }
+});
 </script>
 
 </body>
