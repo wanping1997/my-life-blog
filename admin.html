@@ -386,7 +386,7 @@ const Storage = {
     const posts = this.getAll();
     const idx = posts.findIndex(p => p.id === id);
     if (idx === -1) return false;
-    posts[idx] = { ...posts[idx], ...data, updatedAt: new Date().toISOString() };
+    posts[idx] = { ...posts[idx], ...data, updatedAt: nowLocal() };
     this.save(posts);
     return true;
   },
@@ -813,8 +813,14 @@ const router = {
 };
 
 // ==================== 操作 ====================
+function nowLocal() {
+  const d = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
 function today() {
-  return new Date().toISOString().slice(0, 10);
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
 function handleCreate(e) {
@@ -826,8 +832,8 @@ function handleCreate(e) {
   if (!content) return;
 
   const createdAt = dateVal
-    ? new Date(dateVal + 'T12:00:00+08:00').toISOString()
-    : new Date().toISOString();
+    ? dateVal + 'T12:00:00'
+    : nowLocal();
 
   const id = genId();
   Storage.add({ id, title, content, category, createdAt, updatedAt: createdAt });
