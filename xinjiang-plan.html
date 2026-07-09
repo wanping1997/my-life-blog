@@ -91,8 +91,8 @@ body { font-family: "PingFang SC","Microsoft YaHei",sans-serif; background:#fff;
 /* ── Print ───────────────────── */
 @media print {
   body { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
-  .page { padding: 20px 32px; }
-  #map { height: 480px; width:100%; }
+  .page { padding: 16px 24px; }
+  .map-wrapper { overflow:hidden !important; }
   .btn-print { display:none; }
 }
 </style>
@@ -260,30 +260,28 @@ setTimeout(() => {
   }
 }, 1200);
 
-// 打印功能：记录当前视图，打印前锁定并恢复
-let _pc, _pz;
+// 打印功能：锁定容器尺寸，阻止打印重排导致偏移
 function printMap() {
-  _pc = map.getCenter(); _pz = map.getZoom();
-  map.dragging.disable();
-  map.touchZoom.disable();
-  map.scrollWheelZoom.disable();
-  const tiles = document.querySelectorAll('#map .leaflet-tile');
-  let loaded = 0;
-  tiles.forEach(t => {
-    if (t.complete) { loaded++; return; }
-    t.addEventListener('load', () => { loaded++; if (loaded >= tiles.length) doPrint(); });
-  });
-  if (loaded >= tiles.length) { setTimeout(doPrint, 500); }
-}
-function doPrint() {
+  var mc = document.querySelector('.map-wrapper');
+  var m = document.getElementById('map');
+  var w = mc.offsetWidth;
+  var h = m.offsetHeight;
+  // 写死尺寸
+  mc.style.width = w + 'px';
+  m.style.width = w + 'px';
+  m.style.height = h + 'px';
+  mc.style.overflow = 'hidden';
+  map.invalidateSize({pan: false, animate: false});
+
   window.print();
-  map.dragging.enable();
-  map.touchZoom.enable();
-  map.scrollWheelZoom.enable();
+
+  // 恢复
+  mc.style.width = '';
+  m.style.width = '';
+  m.style.height = '';
+  mc.style.overflow = '';
+  map.invalidateSize({pan: false, animate: false});
 }
-window.addEventListener('beforeprint', function() {
-  if (_pc) { map.invalidateSize(); map.setView(_pc, _pz); }
-});
 </script>
 </body>
 </html>
