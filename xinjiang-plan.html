@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>北疆9日自驾 · 乌鲁木齐+伊宁+赛里木湖</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+@page { size: A4; margin: 0; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: "PingFang SC","Microsoft YaHei",sans-serif; background:#fff; color:#1a1a1a; }
+
+.page {
+  max-width: 1100px; margin: 0 auto; padding: 40px 48px;
+}
+
+/* ── Header ───────────────────── */
+.header { text-align:center; margin-bottom: 40px; }
+.header h1 { font-size: 32px; font-weight: 700; letter-spacing:2px; margin-bottom:8px; }
+.header .subtitle { font-size: 15px; color: #666; }
+
+/* ── Poem ────────────────────── */
+.poem {
+  text-align:center; margin: 32px 0 40px; padding: 28px 0;
+  border-top: 1px solid #e0e0e0; border-bottom: 1px solid #e0e0e0;
+}
+.poem p { font-size: 17px; line-height:2.2; color: #444; letter-spacing:1px; }
+
+/* ── Route overview ──────────── */
+.route-overview {
+  background:#f8f8f8; border-radius:8px; padding:24px 28px; margin-bottom: 36px;
+  font-size: 15px; line-height:1.9; color: #333;
+  border-left: 4px solid #c0392b;
+}
+
+/* ── Section titles ──────────── */
+.section-title {
+  font-size: 20px; font-weight: 600; margin: 36px 0 16px;
+  padding-bottom: 8px; border-bottom: 2px solid #e0e0e0;
+  letter-spacing: 1px;
+}
+
+/* ── Table ───────────────────── */
+.itin-table { width:100%; border-collapse:collapse; font-size:14px; margin-bottom: 36px; }
+.itin-table thead { border-bottom:2px solid #555; }
+.itin-table th {
+  padding:10px 12px; text-align:left; font-weight:600; font-size:13px;
+  color:#555; letter-spacing:1px;
+}
+.itin-table td { padding:10px 12px; border-bottom:1px solid #eee; vertical-align:top; line-height:1.7; }
+.itin-table tr:nth-child(even) td { background:#fafafa; }
+.itin-table .itin-day { font-weight:600; white-space:nowrap; }
+.itin-table .itin-sub { font-size:12px; color:#888; display:block; }
+.itin-highlight td { background:#fff8f0 !important; border-left:3px solid #e8913a; }
+.itin-highlight .itin-day { color:#d4740a; }
+
+/* ── Map ─────────────────────── */
+.map-wrapper {
+  border:2px solid #e0e0e0; border-radius:8px; overflow:hidden; margin-bottom: 36px;
+  position:relative;
+}
+#map { height: 520px; width: 100%; }
+.map-legend {
+  position:absolute; bottom:16px; right:16px; z-index:1000;
+  background:rgba(255,255,255,0.92); padding:12px 16px;
+  border-radius:8px; font-size:12px; line-height:2;
+  border:1px solid #ddd; box-shadow:0 2px 8px rgba(0,0,0,0.08);
+}
+.map-legend h4 { font-size:13px; margin-bottom:4px; }
+.map-legend .day { display:flex; align-items:center; gap:6px; }
+.map-legend .line { width:18px; height:2px; flex-shrink:0; border-radius:1px; }
+.map-legend .dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.map-info {
+  position:absolute; bottom:16px; left:16px; z-index:1000;
+  background:rgba(255,255,255,0.9); padding:8px 12px;
+  border-radius:6px; font-size:11px; color:#666; border:1px solid #ddd;
+}
+.map-info span { font-weight:700; color:#c0392b; }
+
+/* ── Footer ──────────────────── */
+.footer { text-align:center; font-size:12px; color:#aaa; margin-top: 32px; padding-top:16px; border-top:1px solid #eee; }
+
+/* ── Print ───────────────────── */
+@media print {
+  body { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .page { padding: 20px 32px; }
+  #map { height: 450px; }
+}
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <h1>🏔️ 乌鲁木齐+伊宁+赛里木湖</h1>
+    <div class="subtitle">2026年8月 · 北疆 9日自驾 · 备选方案</div>
+  </div>
+
+  <!-- Poem -->
+  <div class="poem">
+    <p>乘风西行，越天山，望伊犁。</p>
+    <p>草原接雪岭，冰川映湖光。</p>
+    <p>谁揽天地入怀中，几个少年郎。</p>
+  </div>
+
+  <!-- Route overview -->
+  <div class="route-overview">
+    <strong>路线：</strong>武汉 → 郑州 ✈ 乌鲁木齐 → S101 → 安集海大峡谷 → 独库公路北段 → 唐布拉百里画廊 → 那拉提✦ → 特克斯（八卦城）→ 夏塔✦ → 伊昭公路 → 果子沟大桥 → 赛里木湖★ → 伊宁 ✈ 武汉<br>
+    <strong>总驾驶：</strong>约 1,700 km &nbsp;|&nbsp; 伊宁出，不走回头路 &nbsp;|&nbsp; 核心：赛里木湖★ + 那拉提✦ + 夏塔✦
+  </div>
+
+  <!-- Itinerary Table -->
+  <div class="section-title">📋 行程总表</div>
+  <table class="itin-table">
+    <thead><tr><th>日程</th><th>交通</th><th>内容</th><th>住宿</th><th>备注</th></tr></thead>
+    <tbody>
+      <tr><td class="itin-day">D0</td><td>🚗/🚄 武汉→郑州</td><td>—</td><td>郑州</td><td>早休息，赶明早航班</td></tr>
+      <tr><td class="itin-day">D1</td><td>✈ 郑州→乌鲁木齐</td><td>漫游、取车</td><td>乌鲁木齐</td><td>检查车况、倒时差</td></tr>
+      <tr><td class="itin-day">D2</td><td>🚗 乌鲁木齐→独山子<span class="itin-sub">S101 · 安集海大峡谷</span></td><td>S101、丹霞、水库、峡谷</td><td>独山子（备选奎屯）</td><td>早休息</td></tr>
+      <tr><td class="itin-day">D3</td><td>🚗 独山子→那拉提<span class="itin-sub">独库北段 · 唐布拉百里画廊</span></td><td>河谷、草甸、雪山、牧场、牛羊</td><td>那拉提镇</td><td>⚠️ 早出发</td></tr>
+      <tr class="itin-highlight"><td class="itin-day">D4 ⭐</td><td>🚗 景区内</td><td>那拉提草原深度游（2天1夜）</td><td>景区内（备选镇）</td><td>⚠️ 预约自驾票+住宿</td></tr>
+      <tr><td class="itin-day">D5</td><td>🚗 那拉提→特克斯</td><td>那拉提清晨+特克斯漫游</td><td>特克斯</td><td>早起避开高峰</td></tr>
+      <tr><td class="itin-day">D6</td><td>🚗 特克斯→夏塔<span class="itin-sub">备选：恰西、琼库什台、喀拉峻</span></td><td>夏塔古道深度游</td><td>夏塔景区内（备选昭苏）</td><td>⚠️ 提前预约住宿</td></tr>
+      <tr><td class="itin-day">D7</td><td>🚗 夏塔→赛里木湖<span class="itin-sub">伊昭公路</span></td><td>伊昭公路+赛湖环湖日落</td><td>赛里木湖</td><td>⚠️ 提前预约住宿</td></tr>
+      <tr><td class="itin-day">D8</td><td>🚗 赛湖→伊宁</td><td>赛湖清晨+伊宁漫游</td><td>伊宁</td><td>错开高峰</td></tr>
+      <tr><td class="itin-day">D9</td><td>✈ 伊宁→武汉</td><td>—</td><td>—</td><td>⚠️ 别误机</td></tr>
+    </tbody>
+  </table>
+
+  <!-- Map -->
+  <div class="section-title">🗺️ 路线图</div>
+  <div class="map-wrapper">
+    <div id="map"></div>
+    <div class="map-info">总驾驶 ≈ <span>1,700 km</span> &nbsp;|&nbsp; 伊宁出 · 不走回头路 &nbsp;|&nbsp; 鼠标滚轮缩放</div>
+    <div class="map-legend">
+      <h4>📋 图例</h4>
+      <div class="day"><span class="line" style="background:#E74C3C"></span> D2 乌鲁木齐→独山子</div>
+      <div class="day"><span class="line" style="background:#E8913A"></span> D3 独库北段→那拉提</div>
+      <div class="day"><span class="line" style="background:#4A90D9"></span> D5 那拉提→特克斯</div>
+      <div class="day"><span class="line" style="background:#7B68EE"></span> D6 特克斯→夏塔</div>
+      <div class="day"><span class="line" style="background:#27AE60"></span> D7 夏塔→伊昭→赛湖</div>
+      <div class="day"><span class="line" style="background:#2980B9"></span> D8 赛湖→伊宁</div>
+      <div class="day"><span class="dot" style="background:#fff;border:2px solid #4A90D9"></span> ● 住宿</div>
+      <div class="day"><span class="dot" style="background:#E74C3C"></span> ★ 赛里木湖</div>
+      <div class="day"><span class="dot" style="background:#F39C12"></span> ✦ 那拉提·夏塔</div>
+    </div>
+  </div>
+
+  <div class="footer">北疆 9日自驾方案 · 2026年7月制定</div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const map = L.map('map', { attributionControl:false }).setView([43.5, 83.5], 7);
+
+L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
+  subdomains: '1234', maxZoom: 18,
+}).addTo(map);
+
+const C = {
+  flight: '#888', d2:'#E74C3C', d3:'#E8913A', d5:'#4A90D9',
+  d6:'#7B68EE', d7:'#27AE60', d8:'#2980B9',
+  overnight:'#fff', passthru:'#aaa', highlight:'#E74C3C', sub:'#F39C12', pass:'#ccc',
+};
+
+function addRoute(c, color, w=3.5, dash=null) {
+  return L.polyline(c, {color, weight:w, opacity:0.85, dashArray:dash, smoothFactor:1}).addTo(map);
+}
+
+const fs = { color:C.flight, weight:1.5, dashArray:'8 6', opacity:0.5 };
+L.polyline([[30.5928,114.3055],[34.7466,113.6253]], fs).addTo(map);
+L.polyline([[34.7466,113.6253],[36.5,110],[39,100],[41.5,91],[43.8256,87.6168]], fs).addTo(map);
+
+addRoute([[43.8256,87.6168],[43.7,87.1],[43.85,86.3],[44,85.8],[44.1,85.5],[44.1,85.15],[44.15,85.05],[44.35,84.9],[44.32,84.88]], C.d2, 4);
+addRoute([[44.32,84.88],[44.2,84.75],[43.9,84.6],[43.68,84.38],[43.62,84.28],[43.6,84.18],[43.65,84.05],[43.75,83.95],[43.6,84.05],[43.4,84]], C.d3, 4.5);
+addRoute([[43.4,84],[43.38,83.6],[43.3,83],[43.25,82.4],[43.2167,81.8333]], C.d5);
+addRoute([[43.2167,81.8333],[43.1,81.6],[42.95,81.3],[42.8,81],[42.7,80.8]], C.d6, 4);
+addRoute([[42.7,80.8],[42.9,80.95],[43.15,81.15],[43.3,81.3],[43.55,81.25],[43.8,81.2],[44.15,81.15],[44.45,81.1],[44.55,81.12],[44.6,81.1667]], C.d7, 4.5);
+addRoute([[44.6,81.1667],[44.63,81.22],[44.65,81.3],[44.6,81.38],[44.55,81.35],[44.53,81.28],[44.55,81.18],[44.6,81.1667]], C.d7, 2, '4 4');
+addRoute([[44.6,81.1667],[44.45,81.1],[44.2,81.2],[44.05,81.25],[43.9167,81.3167]], C.d8, 4);
+L.polyline([[43.9167,81.3167],[41,90],[38,97],[35,104],[32.5,110],[30.5928,114.3055]], fs).addTo(map);
+
+function overnight(ll, label, popup) {
+  const m = L.circleMarker(ll, {radius:9,fillColor:C.overnight,fillOpacity:1,color:C.d5,weight:2.5}).addTo(map);
+  m.bindTooltip(`<b>${label}</b>`, {permanent:true,direction:'right',offset:[12,0],className:'tl-o'});
+  if(popup) m.bindPopup(popup);
+}
+function passthru(ll, label, popup) {
+  const m = L.circleMarker(ll, {radius:5.5,fillColor:C.passthru,fillOpacity:0.85,color:'#666',weight:1.5}).addTo(map);
+  m.bindTooltip(label, {permanent:true,direction:'right',offset:[8,0],className:'tl-p'});
+  if(popup) m.bindPopup(popup);
+}
+function hl(ll, label, popup) {
+  const m = L.circleMarker(ll, {radius:10,fillColor:C.highlight,fillOpacity:0.9,color:'#fff',weight:2.5}).addTo(map);
+  m.bindTooltip(`<b>⭐ ${label}</b>`, {permanent:true,direction:'top',offset:[0,-14],className:'tl-h'});
+  if(popup) m.bindPopup(popup);
+}
+function sh(ll, label, popup) {
+  const m = L.circleMarker(ll, {radius:8,fillColor:C.sub,fillOpacity:0.85,color:'#fff',weight:2}).addTo(map);
+  m.bindTooltip(`<b>✦ ${label}</b>`, {permanent:true,direction:'top',offset:[0,-12],className:'tl-sh'});
+  if(popup) m.bindPopup(popup);
+}
+function pass(ll, label, popup) {
+  const m = L.circleMarker(ll, {radius:6,fillColor:'transparent',fillOpacity:0,color:C.pass,weight:1.8,dashArray:'3 3'}).addTo(map);
+  m.bindTooltip(`◇ ${label}`, {permanent:true,direction:'left',offset:[-8,0],className:'tl-alt'});
+  if(popup) m.bindPopup(popup);
+}
+function fp(ll, label, popup) {
+  const m = L.circleMarker(ll, {radius:5,fillColor:'#ddd',fillOpacity:0.7,color:'#888',weight:1.2,dashArray:'3 2'}).addTo(map);
+  m.bindTooltip(`${label}`, {permanent:true,direction:'right',offset:[8,0],className:'tl-fp'});
+  if(popup) m.bindPopup(popup);
+}
+
+fp([34.7466,113.6253], '郑州', '<b>郑州</b><br>D0 武汉→郑州<br>D1 郑州✈乌鲁木齐');
+overnight([43.8256,87.6168], '乌鲁木齐', '<b>🏠 乌鲁木齐</b> — D1<br>取车 · 大巴扎 · 领馆巷');
+passthru([44.1,85.15], '安集海大峡谷', '<b>🏜️ 安集海大峡谷</b><br>D2 · 深300m · 免费');
+overnight([44.32,84.88], '独山子', '<b>🏠 独山子</b> — D2<br>独库公路北端起点');
+pass([43.68,84.38], '哈希勒根达坂 3390m', '<b>◇ 哈希勒根达坂</b><br>D3 · 独库最高点');
+passthru([43.6,84.18], '乔尔玛', '<b>🏔️ 乔尔玛</b><br>D3 · 烈士陵园');
+passthru([43.75,83.95], '唐布拉', '<b>🌾 唐布拉百里画廊</b><br>D3 · 天山359°');
+sh([43.4,84], '那拉提草原', '<b>✦ 那拉提草原</b> — D3+D4<br>⭐ 全天深度 2天1夜');
+overnight([43.2167,81.8333], '特克斯', '<b>🏠 特克斯</b> — D5<br>八卦城 · 无红绿灯');
+sh([42.7,80.8], '夏塔', '<b>✦ 夏塔古道</b> — D6<br>冰川+花海 · 木扎尔特');
+passthru([43.3,81.3], '伊昭公路', '<b>🛣️ 伊昭公路</b><br>D7 · 天山支脉');
+passthru([44.45,81.1], '果子沟大桥', '<b>🌉 果子沟大桥</b><br>D7 · 距谷底200m');
+hl([44.6,81.1667], '赛里木湖 — 核心', '<b>⭐ 赛里木湖</b> — D7<br>环湖90km · 日落星空');
+overnight([43.9167,81.3167], '伊宁', '<b>🏠 伊宁</b> — D8<br>喀赞其 · 六星街 · D9✈武汉');
+
+const s = document.createElement('style');
+s.textContent = `
+.tl-o{background:rgba(20,20,40,0.9);color:#fff;border:1px solid #4A90D9;border-radius:6px;padding:2px 8px;font-size:13px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.4);}
+.tl-p{background:rgba(30,30,50,0.85);color:#ccc;border:1px solid #555;border-radius:5px;padding:1px 7px;font-size:11px;white-space:nowrap;}
+.tl-h{background:rgba(180,20,20,0.9);color:#fff;border:2px solid #ff6b6b;border-radius:6px;padding:3px 10px;font-size:14px;white-space:nowrap;box-shadow:0 2px 12px rgba(255,0,0,0.3);}
+.tl-sh{background:rgba(180,120,20,0.9);color:#fff;border:2px solid #f0c040;border-radius:5px;padding:2px 8px;font-size:12px;white-space:nowrap;box-shadow:0 2px 10px rgba(200,150,20,0.3);}
+.tl-alt{background:rgba(30,30,50,0.8);color:#aaa;border:1px dashed #888;border-radius:4px;padding:1px 6px;font-size:10px;white-space:nowrap;}
+.tl-fp{background:rgba(30,30,50,0.8);color:#bbb;border:1px dashed #777;border-radius:4px;padding:1px 6px;font-size:10px;white-space:nowrap;}
+.leaflet-popup-content{font-family:"Microsoft YaHei",sans-serif;font-size:13px;line-height:1.6;}
+.leaflet-popup-content b{color:#333;}
+`;
+document.head.appendChild(s);
+
+// 延迟一下让地图瓦片加载完
+setTimeout(() => {
+  const all = [];
+  map.eachLayer(l => { if(l.getLatLng) all.push(l.getLatLng()); });
+  if (all.length) {
+    const g = L.featureGroup(all.map(ll => L.marker(ll)));
+    map.fitBounds(g.getBounds().pad(0.08));
+  }
+}, 1200);
+</script>
+</body>
+</html>
