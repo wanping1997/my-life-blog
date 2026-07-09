@@ -47,7 +47,7 @@ body { font-family: "PingFang SC","Microsoft YaHei",sans-serif; background:#fff;
 
 .btn-print { display:inline-block; margin-left:12px; padding:6px 18px; background:#c0392b; color:#fff; border:none; border-radius:4px; font-size:13px; cursor:pointer; vertical-align:middle; }
 .btn-print:hover { background:#a93226; }
-@media print { body { -webkit-print-color-adjust:exact; print-color-adjust:exact; } .page { padding:16px 24px; } .map-wrapper { overflow:hidden !important; } .btn-print { display:none; } }
+@media print { body { -webkit-print-color-adjust:exact; print-color-adjust:exact; } .page { padding:16px 24px; max-width:100%; } .map-wrapper { overflow:hidden !important; } .btn-print { display:none; } .break-before { page-break-before:always; } .break-inside { page-break-inside:avoid; } .itin-table { page-break-inside:avoid; } .itin-table tr { page-break-inside:avoid; } }
 </style>
 </head>
 <body>
@@ -70,8 +70,8 @@ body { font-family: "PingFang SC","Microsoft YaHei",sans-serif; background:#fff;
     <strong>总驾驶：</strong>约 1,550 km &nbsp;|&nbsp; 最高海拔 4,520 m &nbsp;|&nbsp; 核心：莲宝叶则★
   </div>
 
-  <div class="section-title">📋 行程总表</div>
-  <table class="itin-table">
+  <div class="section-title break-before">📋 行程总表</div>
+  <div class="break-inside"><table class="itin-table">
     <thead><tr><th>日程</th><th>交通</th><th>内容</th><th>住宿</th><th>备注</th></tr></thead>
     <tbody>
       <tr><td class="itin-day">D1</td><td>✈ 武汉→兰州</td><td>租车；兰州漫游；整备物资</td><td>兰州</td><td>计划周六上午飞中午到；检查车况；备点药；能星期五晚到更好</td></tr>
@@ -84,10 +84,10 @@ body { font-family: "PingFang SC","Microsoft YaHei",sans-serif; background:#fff;
       <tr><td class="itin-day">D8</td><td>🚗 理县→汶川（1.5h）<span class="itin-sub">汶川→成都</span></td><td>海拔回落<br>回归城市；放松</td><td>成都</td><td>不搞基</td></tr>
       <tr><td class="itin-day">D9</td><td>✈ 成都→武汉</td><td>休息+成都漫游<br>还车</td><td>/</td><td>下午或晚上飞；检查车况</td></tr>
     </tbody>
-  </table>
+  </table></div>
 
-  <div class="section-title">🗺️ 路线图 <button class="btn-print" onclick="printMap()">🖨️ 打印PDF</button></div>
-  <div class="map-wrapper">
+  <div class="section-title break-before">🗺️ 路线图 <button class="btn-print" onclick="printMap()">🖨️ 打印PDF</button></div>
+  <div class="map-wrapper break-inside">
     <div id="map"></div>
     <div class="map-info">总驾驶 ≈ <span>1,550 km</span> &nbsp;|&nbsp; 最高海拔 <span>4,520 m</span> &nbsp;|&nbsp; 鼠标滚轮缩放</div>
     <div class="map-legend">

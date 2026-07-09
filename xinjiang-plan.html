@@ -91,9 +91,13 @@ body { font-family: "PingFang SC","Microsoft YaHei",sans-serif; background:#fff;
 /* ── Print ───────────────────── */
 @media print {
   body { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
-  .page { padding: 16px 24px; }
+  .page { padding: 16px 24px; max-width:100%; }
   .map-wrapper { overflow:hidden !important; }
   .btn-print { display:none; }
+  .break-before { page-break-before:always; }
+  .break-inside { page-break-inside:avoid; }
+  .itin-table { page-break-inside:avoid; }
+  .itin-table tr { page-break-inside:avoid; }
 }
 </style>
 </head>
@@ -121,8 +125,8 @@ body { font-family: "PingFang SC","Microsoft YaHei",sans-serif; background:#fff;
   </div>
 
   <!-- Itinerary Table -->
-  <div class="section-title">📋 行程总表</div>
-  <table class="itin-table">
+  <div class="section-title break-before">📋 行程总表</div>
+  <div class="break-inside"><table class="itin-table">
     <thead><tr><th>日程</th><th>交通</th><th>内容</th><th>住宿</th><th>备注</th></tr></thead>
     <tbody>
       <tr><td class="itin-day">D0</td><td>🚗/🚄 武汉→郑州</td><td>—</td><td>郑州</td><td>早休息，赶明早航班</td></tr>
@@ -136,11 +140,11 @@ body { font-family: "PingFang SC","Microsoft YaHei",sans-serif; background:#fff;
       <tr><td class="itin-day">D8</td><td>🚗 赛湖→伊宁</td><td>赛湖清晨+伊宁漫游</td><td>伊宁</td><td>错开高峰</td></tr>
       <tr><td class="itin-day">D9</td><td>✈ 伊宁→武汉</td><td>—</td><td>—</td><td>⚠️ 别误机</td></tr>
     </tbody>
-  </table>
+  </table></div>
 
   <!-- Map -->
-  <div class="section-title">🗺️ 路线图 <button class="btn-print" onclick="printMap()">🖨️ 打印PDF</button></div>
-  <div class="map-wrapper">
+  <div class="section-title break-before">🗺️ 路线图 <button class="btn-print" onclick="printMap()">🖨️ 打印PDF</button></div>
+  <div class="map-wrapper break-inside">
     <div id="map"></div>
     <div class="map-info">总驾驶 ≈ <span>1,700 km</span> &nbsp;|&nbsp; 伊宁出 · 不走回头路 &nbsp;|&nbsp; 鼠标滚轮缩放</div>
     <div class="map-legend">
