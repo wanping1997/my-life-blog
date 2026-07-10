@@ -672,13 +672,14 @@ function renderSidebar() {
   const mtbName = document.getElementById('mtb-name');
   if (mtbName) mtbName.textContent = profileData.name || '未命名';
 
-  // 文章档案 (桌面端)
+  // 文章档案 (桌面端) — 只显示补丁
   const archiveList = document.getElementById('archive-list');
   if (archiveList) {
-    if (postsData.length === 0) {
-      archiveList.innerHTML = '<li class="archive-empty">暂无文章</li>';
+    const patchPosts = postsData.filter(p => p.category === 'patch');
+    if (patchPosts.length === 0) {
+      archiveList.innerHTML = '<li class="archive-empty">暂无补丁</li>';
     } else {
-      archiveList.innerHTML = postsData.map(p => `
+      archiveList.innerHTML = patchPosts.map(p => `
         <li class="archive-item" data-id="${p.id}" onclick="router.navigate('post', '${p.id}')">
           <div class="archive-date">${formatDateShort(p.createdAt)}</div>
           <div class="archive-item-title">${escapeHtml(p.title || '无标题')}</div>
@@ -694,16 +695,16 @@ function renderSidebar() {
 function renderMobileArchive() {
   const ma = document.getElementById('mobile-archive');
   if (!ma) return;
-  if (postsData.length === 0) {
-    ma.innerHTML = '<div style="font-size:13px;color:var(--text-muted);padding:8px 0;">暂无文章</div>';
+  const patchPosts = postsData.filter(p => p.category === 'patch');
+  if (patchPosts.length === 0) {
+    ma.innerHTML = '<div style="font-size:13px;color:var(--text-muted);padding:8px 0;">暂无补丁</div>';
     return;
   }
-  const catEmoji = { travel: '🗺', patch: '📌', thought: '💭', reading: '📖', life: '📝' };
-  ma.innerHTML = postsData.map(p => `
+  ma.innerHTML = patchPosts.map(p => `
     <div class="ma-item" onclick="router.navigate('post','${p.id}');closeMobileArchive();">
       <span class="ma-date">${formatDateShort(p.createdAt)}</span>
       <span class="ma-title">${escapeHtml(p.title || '无标题')}</span>
-      <span class="ma-cat">${catEmoji[p.category] || '📝'}</span>
+      <span class="ma-cat">📌</span>
     </div>
   `).join('');
 }
