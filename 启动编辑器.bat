@@ -11,9 +11,16 @@ for /f "tokens=5" %%a in ('netstat -ano ^| findstr ":3456.*LISTENING" 2^>nul') d
   timeout /t 1 /nobreak >nul
 )
 
+REM 先启动服务器（后台运行）
+start /B node server.js
+timeout /t 2 /nobreak >nul
+
+REM 服务器就绪后再打开浏览器
 start "" http://localhost:3456
+
 echo 编辑器已打开，请不要关闭此窗口。
 echo 按 Ctrl+C 可停止服务器。
 echo.
-node server.js
-pause
+
+REM 保持窗口不关闭
+pause >nul
