@@ -416,20 +416,25 @@ const server = http.createServer(async (req, res) => {
     const url = 'https://wanping1997.github.io/my-life-blog/';
     console.log('[部署] git add + commit + push...');
 
-    exec('git add -A && git commit -m "publish" && git push origin master', { cwd: ROOT, timeout: 60000 }, (err, stdout, stderr) => {
-      if (err) {
-        // git commit 在无变更时会报错，这种情况也算成功
-        if (stderr && stderr.includes('nothing to commit')) {
-          console.log('[部署] 无变更，跳过 push');
-          return json(res, 200, { ok: true, msg: '已是最新版本', url });
+    function doPush(attempt) {
+      exec('git add -A && git commit -m "publish" && git push origin master', { cwd: ROOT, timeout: 120000 }, (err, stdout, stderr) => {
+        if (err) {
+          if (stderr && stderr.includes('nothing to commit')) {
+            console.log('[部署] 无变更，跳过 push');
+            return json(res, 200, { ok: true, msg: '已是最新版本', url });
+          }
+          if (attempt < 3) {
+            console.log('[部署] 第' + (attempt+1) + '次失败，3秒后重试...');
+            return setTimeout(() => doPush(attempt + 1), 3000);
+          }
+          console.error('[部署] git push 最终失败:', stderr || err.message);
+          return json(res, 500, { ok: false, msg: '部署失败（已重试3次）: ' + (stderr || err.message) });
         }
-        console.error('[部署] git push 失败:', stderr || err.message);
-        return json(res, 500, { ok: false, msg: '部署失败: ' + (stderr || err.message) });
-      }
-      console.log('[部署] 成功! ' + url);
-      console.log('[部署] GitHub Pages 将在 1-2 分钟内自动更新');
-      json(res, 200, { ok: true, msg: '部署成功！1-2 分钟后生效', url });
-    });
+        console.log('[部署] 成功! ' + url);
+        json(res, 200, { ok: true, msg: '部署成功！1-2 分钟后生效', url });
+      });
+    }
+    doPush(0);
     return;
   }
 
