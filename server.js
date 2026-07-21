@@ -444,3 +444,17 @@ server.listen(PORT, () => {
   console.log('  编辑完点「发布」即可更新公网');
   console.log('');
 });
+
+server.on('error', function(e) {
+  if (e.code === 'EADDRINUSE') {
+    console.error('端口 ' + PORT + ' 已被占用，可能上次没关干净。');
+    console.error('解决方法：关闭所有命令行窗口后重试，或重启电脑。');
+  } else {
+    console.error('服务器启动失败:', e.message);
+  }
+  process.exit(1);
+});
+
+process.on('uncaughtException', function(e) {
+  console.error('运行错误:', e.message);
+});

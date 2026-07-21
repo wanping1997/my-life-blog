@@ -3,6 +3,14 @@ title 博客编辑器
 cd /d "%~dp0"
 echo 正在启动博客编辑器...
 echo.
+
+REM 杀掉占用端口3456的旧进程
+for /f "tokens=5" %%a in ('netstat -ano ^| findstr ":3456.*LISTENING" 2^>nul') do (
+  echo 发现旧进程 PID=%%a，正在关闭...
+  taskkill /PID %%a /F 2>nul
+  timeout /t 1 /nobreak >nul
+)
+
 start "" http://localhost:3456
 echo 编辑器已打开，请不要关闭此窗口。
 echo 按 Ctrl+C 可停止服务器。
