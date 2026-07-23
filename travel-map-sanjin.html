@@ -29,23 +29,11 @@ body { font-family: -apple-system, "Microsoft YaHei", sans-serif; background:#17
     @media (max-width:768px) {
   .legend { max-height:none; }
   .info-panel { bottom:20px; left:8px; font-size:11px; padding:6px 10px; }
-  .title-banner { font-size:11px; padding:4px 10px; top:8px; }
-}
 .legend .day { display:flex; align-items:center; gap:8px; }
 .legend .dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
 .legend .line { width:22px; height:2px; flex-shrink:0; border-radius:1px; }
 .legend .dash { width:22px; height:0; flex-shrink:0; border-top:2px dashed #888; }
 
-.title-banner {
-  position:fixed; top:16px; left:50%; transform:translateX(-50%); z-index:1000;
-  background:rgba(20,20,40,0.9); color:#fff; padding:10px 24px;
-  border-radius:20px; font-size:13px; font-weight:500;
-  pointer-events:auto; cursor:pointer; border:1px solid rgba(255,255,255,0.15);
-  backdrop-filter:blur(8px); letter-spacing:1px; user-select:none;
-  display:flex; align-items:center; gap:8px;
-}
-.title-banner.collapsed { font-size:18px; padding:8px 14px; }
-.title-banner.collapsed .tb-text { display:none; }
 
 .info-panel {
   position:fixed; bottom:30px; left:16px; z-index:1000;
@@ -62,7 +50,6 @@ body { font-family: -apple-system, "Microsoft YaHei", sans-serif; background:#17
 </head>
 <body>
 
-<div class="title-banner" onclick="this.classList.toggle('collapsed')"><span class="tb-text">三晋行</span> 🏔️</div>
 
 <div id="map"></div>
 
