@@ -417,7 +417,7 @@ const server = http.createServer(async (req, res) => {
     console.log('[部署] git add + commit + push...');
 
     function doPush(attempt) {
-      exec('cp travel-plans.json plans.json && git add -A && git commit -m "publish" && git push origin master', { cwd: ROOT, timeout: 120000 }, (err, stdout, stderr) => {
+      exec('git add -A && git commit -m "publish" && git push origin master', { cwd: ROOT, timeout: 120000 }, (err, stdout, stderr) => {
         if (err) {
           if (stderr && stderr.includes('nothing to commit')) {
             console.log('[部署] 无变更，跳过 push');
