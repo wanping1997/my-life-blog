@@ -207,7 +207,7 @@ async function loadPlans() {
   const delays = [500, 1500, 3000, 5000];
   for (let i = 0; i <= delays.length; i++) {
     try {
-      const res = await fetch('travel-plans.json?v=5');
+      const res = await fetch('travel-plans.json?v=6');
       if (res.ok) { plans = await res.json(); return; }
     } catch(e) {}
     if (i < delays.length) await new Promise(r => setTimeout(r, delays[i]));
