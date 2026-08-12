@@ -414,7 +414,17 @@ const server = http.createServer(async (req, res) => {
     }
 
     const url = 'https://wanping1997.github.io/my-life-blog/';
-    console.log('[部署] git add + commit + push...');
+
+    // 预检 GitHub 连通性
+    console.log('[部署] 检查 GitHub 连通性...');
+    https.get('https://github.com', { timeout: 8000 }, (checkRes) => {
+      checkRes.resume();
+      console.log('[部署] GitHub 可达，开始 git push...');
+      doPush(0);
+    }).on('error', () => {
+      console.log('[部署] GitHub 不可达，仅本地保存');
+      json(res, 200, { ok: true, msg: 'GitHub 暂时连不上，内容已本地保存，网络恢复后重试发布即可', url });
+    }).on('timeout', function() { this.destroy(); });
 
     function doPush(attempt) {
       exec('git add -A && git commit -m "publish" && git push origin master', { cwd: ROOT, timeout: 120000 }, (err, stdout, stderr) => {
