@@ -534,9 +534,10 @@ let profileData = { name: '未命名', bio: '写一句简介…', avatar: '' };
 
 async function loadJSON(file) {
   const delays = [500, 1500, 3000, 5000];
+  const ts = Date.now();
   for (let i = 0; i <= delays.length; i++) {
     try {
-      const res = await fetch(file);
+      const res = await fetch(file + '?t=' + ts);
       if (res.ok) return await res.json();
     } catch(e) { /* 本地打开文件会失败 */ }
     if (i < delays.length) await new Promise(r => setTimeout(r, delays[i]));
