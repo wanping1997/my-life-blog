@@ -12,3 +12,14 @@
 
   编辑完点「发布」即可更新公网
 
+
+  博客管理已启动
+  打开 → http://localhost:3456
+
+  编辑完点「发布」即可更新公网
+
+[保存] posts.json
+[保存] avatar.jpg (289KB)
+[WebP] avatar.webp
+[保存] profile.json
+[部署] git add + commit + push（最多重试5次）...
