@@ -28,3 +28,5 @@ https://wanping1997.github.io/my-life-blog/
 - 图片以 base64 格式嵌入文章内容
 - 本地服务器运行在 localhost:3456，负责保存文件和部署
 - 部署方式：启动编辑器后点「发布」，或直接 push 到 GitHub
+- git 远程已配置为 SSH over 443（别名 `github-ssh443`，见 `~/.ssh/config`），国内访问稳定；SSH 公钥已登记在 wanping1997 的 GitHub 账号
+- `videos/` 在 .gitignore 中（视频体积大且部分超 GitHub 100MB 限制，当前无文章引用）
