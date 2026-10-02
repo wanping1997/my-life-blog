@@ -58,6 +58,8 @@ function serveFile(req, res) {
     'Content-Type': mime,
     'Content-Length': stat.size,
     'Accept-Ranges': 'bytes',
+    // 禁止缓存，避免浏览器一直用旧版管理页面
+    'Cache-Control': 'no-cache, no-store, must-revalidate',
   });
   const stream = fs.createReadStream(filePath);
   stream.pipe(res);
