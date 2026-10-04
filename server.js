@@ -296,6 +296,44 @@ function saveMediaFile(buffer, originalName, dir) {
   return unique;
 }
 
+// ==================== 自动发布队列 ====================
+// 发布 = 本地保存 + 加入推送队列；后台自动 git push，
+// 网络不通时每 5 分钟自动重试，直到推送成功，不需要用户反复操作。
+let publishPending = false;   // 有内容等待推送
+let publishBusy = false;      // 正在推送中
+let publishState = { ok: false, time: null, error: '' };
+
+function tryPublish() {
+  if (publishBusy) return;
+  publishBusy = true;
+  console.log('[发布] 后台推送开始...');
+  // 有变更才提交，但始终执行 push（把积压的提交都推上去）
+  exec('git add -A && (git diff --cached --quiet || git commit -m "publish") && git push origin master',
+    { cwd: ROOT, timeout: 60000 }, (err, stdout, stderr) => {
+      publishBusy = false;
+      if (err) {
+        publishState = { ok: false, time: Date.now(), error: (stderr || err.message || '').slice(0, 300) };
+        console.error('[发布] 后台推送失败（稍后自动重试）:', publishState.error.split('\n')[0]);
+        return; // 保持 pending，定时器会重试
+      }
+      publishPending = false;
+      publishState = { ok: true, time: Date.now(), error: '' };
+      console.log('[发布] 后台推送成功! https://wanping1997.github.io/my-life-blog/');
+    });
+}
+
+// 每 5 分钟检查一次待推送内容
+setInterval(function () { if (publishPending) tryPublish(); }, 5 * 60 * 1000);
+
+// 服务器启动时：自动补推本地没推上去的提交
+exec('git rev-list --count origin/master..master', { cwd: ROOT, timeout: 15000 }, function (err, stdout) {
+  if (!err && parseInt(stdout) > 0) {
+    console.log('[发布] 检测到 ' + stdout.trim() + ' 个未推送提交，自动补推');
+    publishPending = true;
+    tryPublish();
+  }
+});
+
 const server = http.createServer(async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -405,7 +443,7 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // 保存 + 部署（GitHub Pages）
+  // 保存 + 提交发布（后台自动推送，网络不通时自动重试）
   if (req.method === 'POST' && req.url === '/api/deploy') {
     const data = await readBody(req);
     if (!data) return json(res, 400, { ok: false, msg: '数据格式错误' });
@@ -414,32 +452,21 @@ const server = http.createServer(async (req, res) => {
     } catch (e) {
       return json(res, 500, { ok: false, msg: '保存失败: ' + e.message });
     }
-
-    const url = 'https://wanping1997.github.io/my-life-blog/';
-    console.log('[部署] git add + commit + push（最多重试5次）...');
-
-    function doPush(attempt) {
-      exec('git add -A && git commit -m "publish" && git push origin master', { cwd: ROOT, timeout: 30000 }, (err, stdout, stderr) => {
-        if (err) {
-          if (stderr && stderr.includes('nothing to commit')) {
-            console.log('[部署] 无变更，跳过 push');
-            return json(res, 200, { ok: true, msg: '已是最新版本', url });
-          }
-          if (attempt < 5) {
-            const delay = (attempt + 1) * 2000;
-            console.log('[部署] 第' + (attempt+1) + '次失败，' + (delay/1000) + '秒后重试...');
-            return setTimeout(() => doPush(attempt + 1), delay);
-          }
-          console.error('[部署] 最终失败:', stderr || err.message);
-          const hint = (stderr || '').includes('Could not connect') ? '（GitHub 连不上，稍后重试）' : '';
-          return json(res, 500, { ok: false, msg: '部署失败' + hint });
-        }
-        console.log('[部署] 成功! ' + url);
-        json(res, 200, { ok: true, msg: '部署成功！1-2 分钟后生效', url });
-      });
-    }
-    doPush(0);
+    publishPending = true;
+    tryPublish();
+    json(res, 200, { ok: true, msg: '内容已保存，后台自动发布中（网络不通时会自动重试，无需操作）', url: 'https://wanping1997.github.io/my-life-blog/' });
     return;
+  }
+
+  // 发布状态（管理页面轮询用）
+  if (req.method === 'GET' && req.url === '/api/status') {
+    return json(res, 200, {
+      pending: publishPending,
+      pushing: publishBusy,
+      ok: publishState.ok,
+      time: publishState.time,
+      error: publishState.error
+    });
   }
 
   serveFile(req, res);

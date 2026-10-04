@@ -440,11 +440,12 @@ async function handlePublish() {
     const result = await res.json();
 
     if (result.ok) {
-      btn.textContent = '✅ 已发布';
-      status.innerHTML = `公网已更新！<br><a href="${result.url}" target="_blank" style="color:#78716c;">${result.url}</a>`;
+      btn.textContent = '✅ 已提交';
+      status.textContent = '内容已保存，后台自动发布中...';
+      pollPublishStatus();
     } else {
       btn.textContent = '⬆ 发布';
-      status.textContent = '发布失败：' + result.msg;
+      status.textContent = '保存失败：' + result.msg;
     }
   } catch (e) {
     btn.textContent = '⬆ 发布';
@@ -452,7 +453,28 @@ async function handlePublish() {
   }
 
   btn.disabled = false;
-  setTimeout(() => { if (btn.textContent === '✅ 已发布') btn.textContent = '⬆ 发布'; }, 3000);
+  setTimeout(() => { if (btn.textContent === '✅ 已提交') btn.textContent = '⬆ 发布'; }, 3000);
+}
+
+// 轮询发布状态，直到推送成功（网络不通时后台会自动重试）
+function pollPublishStatus() {
+  let tries = 0;
+  const timer = setInterval(async () => {
+    tries++;
+    try {
+      const res = await fetch('http://localhost:3456/api/status');
+      const s = await res.json();
+      if (s.ok && s.time && !s.pending) {
+        clearInterval(timer);
+        status.textContent = '✅ 公网已更新！';
+      } else if (tries >= 40) {  // 最多轮询 10 分钟
+        clearInterval(timer);
+        status.textContent = '后台仍在自动重试发布（网络恢复后会自动推送，无需操作）';
+      }
+    } catch (e) {
+      if (tries >= 40) { clearInterval(timer); status.textContent = '后台仍在自动重试发布（无需操作）'; }
+    }
+  }, 15000);
 }
 
 // ==================== 头像和个人信息 ====================
