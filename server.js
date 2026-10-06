@@ -445,8 +445,9 @@ const server = http.createServer(async (req, res) => {
 
   // 保存 + 提交发布（后台自动推送，网络不通时自动重试）
   if (req.method === 'POST' && req.url === '/api/deploy') {
+    console.log('[部署] 收到发布请求');
     const data = await readBody(req);
-    if (!data) return json(res, 400, { ok: false, msg: '数据格式错误' });
+    if (!data) { console.error('[部署] 请求数据无效'); return json(res, 400, { ok: false, msg: '数据格式错误' }); }
     try {
       await saveFiles(data.posts, data.profile);
     } catch (e) {
