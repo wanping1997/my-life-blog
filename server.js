@@ -451,6 +451,7 @@ const server = http.createServer(async (req, res) => {
     try {
       await saveFiles(data.posts, data.profile);
     } catch (e) {
+      console.error('[部署] 失败详情:', e && (e.stack || e.message) || e);
       return json(res, 500, { ok: false, msg: '保存失败: ' + e.message });
     }
     publishPending = true;
