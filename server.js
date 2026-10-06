@@ -72,6 +72,7 @@ async function saveFiles(posts, profile) {
   }
   if (profile) {
     // 如果头像还是 base64，提取为 avatar.jpg
+    console.log('[保存] profile 检查: avatar类型=' + typeof profile.avatar + ' 长度=' + String(profile.avatar || '').length + ' name=' + String(profile.name || ''));
     const avatar = profile.avatar || '';
     if (avatar.startsWith('data:image/')) {
       const match = avatar.match(/^data:image\/(\w+);base64,(.+)$/);
@@ -82,13 +83,15 @@ async function saveFiles(posts, profile) {
         fs.writeFileSync(avatarPath, buf);
         profile.avatar = 'avatar.' + ext;
         console.log('[保存] avatar.' + ext + ' (' + (buf.length / 1024).toFixed(0) + 'KB)');
-        // 同时生成 WebP 版本
+        // 同时生成 WebP 版本（15 秒超时保护，防止 sharp 卡住整个保存流程）
         try {
           const webpPath = path.join(ROOT, 'avatar.webp');
-          await sharp(avatarPath)
+          const job = sharp(avatarPath)
             .resize(200, 200, { fit: 'cover' })
             .webp({ quality: 70 })
             .toFile(webpPath);
+          const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('sharp 超时(15s)')), 15000));
+          await Promise.race([job, timeout]);
           console.log('[WebP] avatar.webp');
         } catch(e) {
           console.error('[WebP] avatar 生成失败:', e.message);
