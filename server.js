@@ -83,10 +83,12 @@ async function saveFiles(posts, profile) {
         fs.writeFileSync(avatarPath, buf);
         profile.avatar = 'avatar.' + ext;
         console.log('[保存] avatar.' + ext + ' (' + (buf.length / 1024).toFixed(0) + 'KB)');
-        // 同时生成 WebP 版本（15 秒超时保护，防止 sharp 卡住整个保存流程）
+        // 同时生成 WebP 版本：从内存（buf）生成，绝不打开 avatar.jpg 文件——
+        // sharp 在 Windows 上会锁住输入文件，导致下一次保存头像必然失败
+        // （Error: UNKNOWN: unknown error, open 'avatar.jpg'）
         try {
           const webpPath = path.join(ROOT, 'avatar.webp');
-          const job = sharp(avatarPath)
+          const job = sharp(buf)
             .resize(200, 200, { fit: 'cover' })
             .webp({ quality: 70 })
             .toFile(webpPath);
@@ -231,7 +233,9 @@ async function compressImage(filePath) {
   const ext = path.extname(filePath).toLowerCase();
   const inSize = fs.statSync(filePath).size;
   try {
-    const image = sharp(filePath);
+    // 读入内存处理：sharp 在 Windows 上会锁住输入文件，从文件路径读取
+    // 会让原文件一段时间内无法被覆盖/删除
+    const image = sharp(fs.readFileSync(filePath));
     const metadata = await image.metadata();
 
     // 如果图片已经很小（< 200KB）且尺寸在限制内，跳过
