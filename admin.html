@@ -887,6 +887,8 @@ function handleDelete(id) {
   Storage.delete(id);
   renderSidebar();
   router.navigate('new');
+  // 删除后自动发布，公网同步删除，不用再手动点「发布」
+  handlePublish();
 }
 
 // ==================== 工具函数 ====================
